@@ -624,11 +624,6 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
 
         <!-- 中：紙幣（左）＋ 硬貨（右）の2列 -->
         <div id="payment-col-mid" style="display:none;">
-          <div class="cash-quick-row" id="cash-quick-btns"></div>
-          <div class="cash-received-header">
-            <span class="cash-received-label">💴 お預かり内訳</span>
-            <span class="cash-received-total" id="cash-received-total">¥0</span>
-          </div>
           <div id="cash-denom-split">
             <!-- 紙幣列 -->
             <div class="denom-group">
@@ -647,8 +642,9 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
         <div id="payment-col-right" style="display:none;flex-direction:column;gap:6px;">
           <div class="cash-keypad-display">
             <span class="cash-keypad-denom-label">💴 お預かり金額</span>
-            <span class="cash-keypad-value" id="kp-value">0</span>
+            <span class="cash-keypad-value" id="kp-value">¥0</span>
           </div>
+          <div class="cash-quick-row" id="cash-quick-btns"></div>
           <div class="cash-keypad-grid">
             <button class="kp-btn" onclick="kpInput('7')">7</button>
             <button class="kp-btn" onclick="kpInput('8')">8</button>
@@ -1480,9 +1476,7 @@ let kpStr = '';           // テンキー入力文字列
 let _paymentTotal = 0;    // 会計金額（お釣り計算用）
 
 function receivedTotal() {
-  // テンキーに値があればそちらを優先、なければ金種テーブルの合計
-  const kpVal = parseInt(kpStr) || 0;
-  if (kpVal > 0) return kpVal;
+  // 常に金種テーブルの枚数合計を返す（テンキーは表示専用）
   return CASH_DENOMS.reduce((s, d) => s + d * (cashCounts[d] || 0), 0);
 }
 
@@ -1491,17 +1485,14 @@ function updateCashInputSection(total) {
   const colMid    = document.getElementById('payment-col-mid');
   const colRight  = document.getElementById('payment-col-right');
   const colActions= document.getElementById('payment-col-actions');
-  // confirm-btn はテンキー右列に、confirm-btn-alt は非現金用
-  const confirmBtn    = document.getElementById('confirm-btn');
-  const confirmBtnAlt = document.getElementById('confirm-btn-alt');
-  const cancelBtnAlt  = document.getElementById('cancel-btn-alt');
 
   if (selMethod !== 'cash') {
     colMid.style.display    = 'none';
     colRight.style.display  = 'none';
     colActions.style.display= 'flex';
-    if (confirmBtn)    { confirmBtn.disabled    = false; }
-    if (confirmBtnAlt) { confirmBtnAlt.disabled = false; }
+    ['confirm-btn','confirm-btn-alt'].forEach(id => {
+      const b = document.getElementById(id); if (b) b.disabled = false;
+    });
     document.getElementById('change-display').style.display = 'none';
     return;
   }
@@ -1512,110 +1503,116 @@ function updateCashInputSection(total) {
 
   // 初期化
   cashCounts = {};
-  activeDenom = null;
   kpStr = '';
+
+  // クイックボタン（テンキー列上部）
   const quickAmts = [...new Set([total, 1000, 5000, 10000, 50000].filter(a => a >= total))].sort((a,b)=>a-b);
   document.getElementById('cash-quick-btns').innerHTML = quickAmts.slice(0,5).map(a =>
     `<button class="cash-quick-btn${a === total ? ' exact' : ''}" onclick="setCashQuick(${a})">${a === total ? 'ちょうど' : fmt(a)}</button>`
   ).join('');
 
-  renderDenomTable();
-  renderKpDisplay();
+  // テーブルを初期描画（DOM生成はここだけ）
+  buildDenomTable();
+  updateDenomTable();
+  updateKpDisplay();
   updateChange();
 }
 
-const BILLS = [10000, 5000, 1000]; // 紙幣
-const COINS = [500, 100, 50, 10, 5, 1]; // 硬貨
+const BILLS = [10000, 5000, 1000];
+const COINS  = [500, 100, 50, 10, 5, 1];
 
-function renderDenomTable() {
-  const bills = document.getElementById('cash-denom-bills');
-  const coins  = document.getElementById('cash-denom-coins');
-  const totalEl = document.getElementById('cash-received-total');
-  if (!bills || !coins) return;
-
-  const makeRow = d => {
-    const cnt = cashCounts[d] || 0;
-    const sub = d * cnt;
-    const isActive = activeDenom === d;
-    return `<tr class="denom-row${isActive ? ' active-row' : ''}" onclick="selectDenom(${d})">
-      <td class="denom-name">${DENOM_LABEL[d]}</td>
-      <td>
-        <div class="denom-stepper">
-          <button class="denom-step-btn" onclick="event.stopPropagation();stepDenom(${d},-1)">−</button>
-          <span class="denom-count">${cnt}</span>
-          <button class="denom-step-btn" onclick="event.stopPropagation();stepDenom(${d},1)">＋</button>
-        </div>
-      </td>
-      <td class="denom-subtotal">${sub > 0 ? fmt(sub) : '—'}</td>
-    </tr>`;
+// テーブルのDOM構造を1回だけ構築（行・セルはここで固定）
+function buildDenomTable() {
+  const makeRows = (denoms, tbodyId) => {
+    const tbody = document.getElementById(tbodyId);
+    if (!tbody) return;
+    tbody.innerHTML = denoms.map(d =>
+      `<tr class="denom-row" id="drow-${d}">
+        <td class="denom-name">${DENOM_LABEL[d]}</td>
+        <td style="white-space:nowrap;">
+          <div class="denom-stepper">
+            <button class="denom-step-btn" onclick="stepDenom(${d},-1)">−</button>
+            <span class="denom-count" id="dcnt-${d}">0</span>
+            <button class="denom-step-btn" onclick="stepDenom(${d},1)">＋</button>
+          </div>
+        </td>
+        <td class="denom-subtotal" id="dsub-${d}">—</td>
+      </tr>`
+    ).join('');
   };
-
-  bills.innerHTML = BILLS.map(makeRow).join('');
-  coins.innerHTML = COINS.map(makeRow).join('');
-  if (totalEl) totalEl.textContent = fmt(receivedTotal());
+  makeRows(BILLS, 'cash-denom-bills');
+  makeRows(COINS,  'cash-denom-coins');
 }
 
-function selectDenom(d) {
-  // 金種行クリックでそのアクティブ表示を切り替えるだけ（テンキーとは独立）
-  activeDenom = activeDenom === d ? null : d;
-  renderDenomTable();
+// 枚数・小計セルのテキストだけを更新（DOM再生成なし→ボタン位置固定）
+function updateDenomTable() {
+  CASH_DENOMS.forEach(d => {
+    const cnt = cashCounts[d] || 0;
+    const cntEl = document.getElementById(`dcnt-${d}`);
+    const subEl = document.getElementById(`dsub-${d}`);
+    if (cntEl) cntEl.textContent = cnt;
+    if (subEl) subEl.textContent = cnt > 0 ? fmt(d * cnt) : '—';
+  });
 }
 
 function stepDenom(d, delta) {
   cashCounts[d] = Math.max(0, (cashCounts[d] || 0) + delta);
-  renderDenomTable();
-  // 金種テーブルの合計でお釣りを再計算
-  _paymentTotal && syncDenomToKp();
+  // テンキー入力をクリアして金種合計を優先
+  kpStr = '';
+  updateDenomTable();
+  updateKpDisplay();
   updateChange();
 }
 
-// 金種テーブルの合計をテンキー表示に同期
-function syncDenomToKp() {
-  const t = receivedTotal();
-  kpStr = t > 0 ? String(t) : '';
-  renderKpDisplay();
-}
-
-function renderKpDisplay() {
+function updateKpDisplay() {
   const val = document.getElementById('kp-value');
   if (!val) return;
-  const n = parseInt(kpStr) || 0;
+  const n = receivedTotal();
   val.textContent = n > 0 ? fmt(n) : '¥0';
 }
 
-// テンキー：お預かり金額を直接入力
+// テンキー：kpStrで金額を入力、確定時にcashCountsへ反映
 function kpInput(ch) {
-  if (kpStr.length >= 7) return; // 最大9,999,999円
-  if (kpStr === '0' || kpStr === '') kpStr = ch;
-  else kpStr += ch;
-  renderKpDisplay();
+  if (kpStr.length >= 7) return;
+  kpStr = kpStr === '' ? ch : kpStr + ch;
+  // kpStrの値でcashCountsを上書き（最小枚数展開）
+  applyKpToCounts();
+  updateDenomTable();
+  updateKpDisplay();
   updateChange();
 }
 function kpDel() {
   kpStr = kpStr.slice(0, -1);
-  renderKpDisplay();
+  applyKpToCounts();
+  updateDenomTable();
+  updateKpDisplay();
   updateChange();
 }
 function kpClear() {
   kpStr = '';
-  renderKpDisplay();
+  cashCounts = {};
+  updateDenomTable();
+  updateKpDisplay();
   updateChange();
 }
 
-// ちょうど払いボタン：最小枚数で自動割当
-function setCashQuick(amount) {
-  // テンキーに金額を直接セット
-  kpStr = String(amount);
-  // 金種テーブルにも最小枚数で展開
+// kpStrの金額をcashCountsに最小枚数で展開
+function applyKpToCounts() {
+  const amount = parseInt(kpStr) || 0;
   cashCounts = {};
   let rem = amount;
   for (const d of CASH_DENOMS) {
     const cnt = Math.floor(rem / d);
     if (cnt > 0) { cashCounts[d] = cnt; rem -= d * cnt; }
   }
-  activeDenom = null;
-  renderDenomTable();
-  renderKpDisplay();
+}
+
+// ちょうど払い・クイックボタン
+function setCashQuick(amount) {
+  kpStr = String(amount);
+  applyKpToCounts();
+  updateDenomTable();
+  updateKpDisplay();
   updateChange();
 }
 
@@ -1623,30 +1620,31 @@ function updateChange() {
   const received = receivedTotal();
   const changeDisp = document.getElementById('change-display');
   if (!changeDisp) return;
-  const setConfirmDisabled = v => {
-    const b1 = document.getElementById('confirm-btn');
-    const b2 = document.getElementById('confirm-btn-alt');
-    if (b1) b1.disabled = v;
-    if (b2) b2.disabled = v;
+  const setDisabled = v => {
+    ['confirm-btn','confirm-btn-alt'].forEach(id => {
+      const b = document.getElementById(id); if (b) b.disabled = v;
+    });
   };
   if (received === 0) {
     changeDisp.style.display = 'none';
     lastChange = 0;
-    setConfirmDisabled(false);
+    setDisabled(false);
     return;
   }
   const change = received - _paymentTotal;
   lastChange = change;
   changeDisp.style.display = 'block';
   changeDisp.className = change < 0 ? 'over' : '';
-  document.getElementById('change-label').textContent = change < 0 ? '不足額' : 'お釣り';
+  document.getElementById('change-label').textContent  = change < 0 ? '不足額' : 'お釣り';
   document.getElementById('change-amount').textContent = fmt(Math.abs(change));
-  setConfirmDisabled(change < 0);
+  setDisabled(change < 0);
 }
 
-// 旧関数の互換エイリアス（confirmPaymentで参照）
-function setCashReceived(amount) { setCashQuick(amount); }
-function calcChange(total) { _paymentTotal = total; updateChange(); }
+// 旧互換
+function setCashReceived(a) { setCashQuick(a); }
+function calcChange(t)      { _paymentTotal = t; updateChange(); }
+
+// confirmPaymentのreceivedTotal参照はそのまま（関数として定義済み）
 
 function closeModal() { document.getElementById('modal-bg').classList.remove('open'); }
 
