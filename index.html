@@ -381,6 +381,42 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
 .dact-btn.danger{color:#FF3B30;border-color:rgba(255,59,48,.25);}
 #dpanel-close{margin-top:10px;width:100%;padding:10px;background:none;border:none;color:var(--text3);font-size:14px;cursor:pointer;}
 
+/* ── Cash setup modal ── */
+#cash-setup-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:220;backdrop-filter:blur(4px);}
+#cash-setup-bg.open{display:flex;}
+#cash-setup-modal{background:var(--surface);border-radius:var(--radius);width:92%;max-width:380px;padding:26px 24px;}
+#cash-setup-modal h3{font-size:18px;font-weight:700;margin-bottom:6px;text-align:center;}
+.cash-setup-sub{font-size:13px;color:var(--text3);text-align:center;margin-bottom:20px;}
+.cash-denom-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;}
+.cash-denom-item{display:flex;flex-direction:column;align-items:center;gap:5px;}
+.cash-denom-label{font-size:11px;color:var(--text3);}
+.cash-denom-input{width:100%;padding:8px 4px;border:0.5px solid var(--sep2);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);font-size:14px;text-align:center;outline:none;}
+.cash-denom-input:focus{border-color:var(--primary);}
+.cash-setup-total{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:0.5px solid var(--sep);margin-bottom:16px;}
+.cash-setup-total-label{font-size:13px;color:var(--text3);}
+.cash-setup-total-val{font-size:20px;font-weight:700;color:var(--primary);}
+.cash-setup-btns{display:flex;gap:10px;}
+.cash-setup-btns button{flex:1;padding:13px;border-radius:var(--radius-sm);border:none;font-size:15px;font-weight:500;cursor:pointer;}
+#cash-setup-skip{background:var(--surface2);color:var(--text);}
+#cash-setup-ok{background:var(--primary);color:#fff;}
+/* ── Cash input in payment modal ── */
+#cash-input-section{background:var(--surface2);border-radius:var(--radius-sm);padding:14px;margin-bottom:16px;display:none;}
+.cash-input-label{font-size:12px;font-weight:500;color:var(--text3);margin-bottom:8px;}
+.cash-input-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+#cash-received-input{flex:1;padding:10px 14px;border:1.5px solid var(--sep2);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);font-size:22px;font-weight:600;outline:none;text-align:right;}
+#cash-received-input:focus{border-color:var(--primary);}
+.cash-input-yen{font-size:18px;color:var(--text3);}
+.cash-quick-btns{display:flex;gap:6px;flex-wrap:wrap;}
+.cash-quick-btn{padding:6px 12px;border:0.5px solid var(--sep2);border-radius:20px;background:var(--surface);font-size:13px;cursor:pointer;color:var(--text);white-space:nowrap;}
+.cash-quick-btn:active{background:var(--primary-light);border-color:var(--primary);}
+#change-display{display:none;margin-top:10px;padding:10px 14px;background:var(--green-bg);border-radius:var(--radius-sm);}
+#change-display.over{background:var(--red-bg);}
+.change-label{font-size:12px;color:var(--green-text);margin-bottom:2px;}
+#change-display.over .change-label{color:var(--red-text);}
+.change-amount{font-size:24px;font-weight:700;color:var(--green-text);}
+#change-display.over .change-amount{color:var(--red-text);}
+#success-change-row{font-size:15px;color:var(--text3);margin-bottom:24px;text-align:center;}
+
 /* ── Confirm dialog ── */
 #confirm-dialog-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:400;backdrop-filter:blur(4px);}
 #confirm-dialog-bg.open{display:flex;}
@@ -538,6 +574,19 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
       <div id="modal-title">お支払い方法</div>
       <div id="modal-amount">¥0</div>
       <div class="method-grid" id="method-grid"></div>
+      <!-- 現金入力・お釣り計算 -->
+      <div id="cash-input-section">
+        <div class="cash-input-label">💴 お預かり金額</div>
+        <div class="cash-input-row">
+          <input id="cash-received-input" type="number" inputmode="numeric" placeholder="0">
+          <span class="cash-input-yen">円</span>
+        </div>
+        <div class="cash-quick-btns" id="cash-quick-btns"></div>
+        <div id="change-display">
+          <div class="change-label" id="change-label">お釣り</div>
+          <div class="change-amount" id="change-amount">¥0</div>
+        </div>
+      </div>
       <button id="confirm-btn" onclick="confirmPayment()">確定する</button>
       <button id="cancel-btn" onclick="closeModal()">キャンセル</button>
     </div>
@@ -545,6 +594,7 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
       <div class="success-circle">✓</div>
       <div id="success-title">お支払い完了</div>
       <div id="success-sub"></div>
+      <div id="success-change-row" style="display:none"></div>
       <button id="close-btn" onclick="closeModal()">閉じる</button>
     </div>
   </div>
@@ -707,6 +757,23 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
   </div>
 </div>
 
+<!-- Cash setup modal -->
+<div id="cash-setup-bg">
+  <div id="cash-setup-modal">
+    <h3>💰 釣り銭の準備</h3>
+    <div class="cash-setup-sub">レジ内の現金枚数を入力してください<br>（スキップ可）</div>
+    <div class="cash-denom-grid" id="cash-denom-grid"></div>
+    <div class="cash-setup-total">
+      <span class="cash-setup-total-label">レジ内合計</span>
+      <span class="cash-setup-total-val" id="cash-setup-total-val">¥0</span>
+    </div>
+    <div class="cash-setup-btns">
+      <button id="cash-setup-skip" onclick="skipCashSetup()">スキップ</button>
+      <button id="cash-setup-ok" onclick="confirmCashSetup()">販売開始</button>
+    </div>
+  </div>
+</div>
+
 <!-- Confirm dialog -->
 <div id="confirm-dialog-bg">
   <div id="confirm-dialog">
@@ -747,7 +814,6 @@ const METHODS = [
 let products = [], transactions = [], tags = [], orderQueue = [], presets = [];
 let cart = {}, discPct = 0, selMethod = 'cash', selCat = 'すべて';
 let driveToken = null, lastSync = null, syncTimer = null;
-// Drive folder ID cache  { root, items, presets, results }
 let driveFolderIds = JSON.parse(localStorage.getItem('drive_folder_ids') || 'null') || {};
 let clientId = localStorage.getItem('gdrive_client_id') || '';
 let salesOpen = JSON.parse(localStorage.getItem('sales_open') ?? 'false');
@@ -759,7 +825,11 @@ let selModalTags = [], selPresetProducts = [];
 let prodFilterCat = 'すべて';
 let queueCounter = JSON.parse(localStorage.getItem('queue_counter') ?? '0');
 let confirmDialogOkCb = null;
-let driveFileToken = null; // CSV保存用（drive.fileスコープ）
+let driveFileToken = null;
+// 現金管理
+const DENOMS = [10000,5000,1000,500,100,50,10,5,1];
+let cashInRegister = JSON.parse(localStorage.getItem('cash_in_register') || 'null') || {};
+let lastChange = 0; // 直前のお釣り額
 
 // ══════════════════════════════════════════════
 // BOOT
@@ -841,11 +911,8 @@ function toggleSales() {
       showToast('販売を停止しました');
     }, '停止する');
   } else {
-    salesOpen = true;
-    localStorage.setItem('sales_open', 'true');
-    updateSalesBanner();
-    renderGrid();
-    showToast('販売を開始しました 🎉');
+    // 販売開始前に釣り銭準備モーダルを表示
+    openCashSetup();
   }
 }
 
@@ -1249,6 +1316,46 @@ function updateTotals() {
 }
 
 // ══════════════════════════════════════════════
+// CASH SETUP
+// ══════════════════════════════════════════════
+function cashTotal() {
+  return DENOMS.reduce((s, d) => s + d * (parseInt(cashInRegister[d]) || 0), 0);
+}
+
+function openCashSetup() {
+  const grid = document.getElementById('cash-denom-grid');
+  grid.innerHTML = DENOMS.map(d =>
+    `<div class="cash-denom-item">
+      <span class="cash-denom-label">${d >= 1000 ? (d/1000)+'千円' : d+'円'}</span>
+      <input class="cash-denom-input" type="number" inputmode="numeric" min="0" placeholder="0"
+        value="${cashInRegister[d] || ''}"
+        oninput="cashInRegister[${d}]=parseInt(this.value)||0;updateCashSetupTotal()">
+    </div>`
+  ).join('');
+  updateCashSetupTotal();
+  document.getElementById('cash-setup-bg').classList.add('open');
+}
+function updateCashSetupTotal() {
+  document.getElementById('cash-setup-total-val').textContent = fmt(cashTotal());
+}
+function skipCashSetup() {
+  document.getElementById('cash-setup-bg').classList.remove('open');
+  startSales();
+}
+function confirmCashSetup() {
+  localStorage.setItem('cash_in_register', JSON.stringify(cashInRegister));
+  document.getElementById('cash-setup-bg').classList.remove('open');
+  startSales();
+}
+function startSales() {
+  salesOpen = true;
+  localStorage.setItem('sales_open', 'true');
+  updateSalesBanner();
+  renderGrid();
+  showToast('販売を開始しました 🎉');
+}
+
+// ══════════════════════════════════════════════
 // PAYMENT
 // ══════════════════════════════════════════════
 function openPayment() {
@@ -1256,15 +1363,74 @@ function openPayment() {
   document.getElementById('modal-amount').textContent = fmt(total);
   document.getElementById('payment-content').style.display = 'block';
   document.getElementById('success-view').classList.remove('show');
+  lastChange = 0;
+
   document.getElementById('method-grid').innerHTML = METHODS.map(m =>
-    `<div class="method-btn${m.id === selMethod ? ' selected' : ''}" onclick="selMethod='${m.id}';document.querySelectorAll('.method-btn').forEach(b=>b.classList.remove('selected'));this.classList.add('selected')">
+    `<div class="method-btn${m.id === selMethod ? ' selected' : ''}" onclick="selectMethod('${m.id}')">
       <span class="method-icon">${m.icon}</span>
       <span class="method-name">${m.name}</span>
     </div>`
   ).join('');
+
+  updateCashInputSection(total);
   document.getElementById('modal-bg').classList.add('open');
 }
+
+function selectMethod(id) {
+  selMethod = id;
+  document.querySelectorAll('.method-btn').forEach(b => b.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  const { total } = calcTotals();
+  updateCashInputSection(total);
+}
+
+function updateCashInputSection(total) {
+  const section = document.getElementById('cash-input-section');
+  const input = document.getElementById('cash-received-input');
+  const changeDisp = document.getElementById('change-display');
+
+  if (selMethod !== 'cash') {
+    section.style.display = 'none';
+    return;
+  }
+  section.style.display = 'block';
+  input.value = '';
+  changeDisp.style.display = 'none';
+
+  // クイック金額ボタン（合計以上のキリのいい金額）
+  const quickAmts = [1000,5000,10000,50000].filter(a => a >= total);
+  // ちょうど払いも追加
+  if (!quickAmts.includes(total)) quickAmts.unshift(total);
+  quickAmts.sort((a,b)=>a-b);
+  document.getElementById('cash-quick-btns').innerHTML = quickAmts.slice(0,5).map(a =>
+    `<button class="cash-quick-btn" onclick="setCashReceived(${a})">${a === total ? 'ちょうど' : fmt(a)}</button>`
+  ).join('');
+
+  input.oninput = () => calcChange(total);
+}
+
+function setCashReceived(amount) {
+  document.getElementById('cash-received-input').value = amount;
+  const { total } = calcTotals();
+  calcChange(total);
+}
+
+function calcChange(total) {
+  const received = parseInt(document.getElementById('cash-received-input').value) || 0;
+  const changeDisp = document.getElementById('change-display');
+  if (!received) { changeDisp.style.display = 'none'; lastChange = 0; return; }
+  const change = received - total;
+  lastChange = change;
+  changeDisp.style.display = 'block';
+  changeDisp.className = change < 0 ? 'over' : '';
+  document.getElementById('change-label').textContent = change < 0 ? '不足額' : 'お釣り';
+  document.getElementById('change-amount').textContent = fmt(Math.abs(change));
+  // 確定ボタンを金額不足時に無効化
+  document.getElementById('confirm-btn').disabled = change < 0;
+}
+
 function closeModal() { document.getElementById('modal-bg').classList.remove('open'); }
+
 function confirmPayment() {
   const m = METHODS.find(x => x.id === selMethod);
   const { total } = calcTotals();
@@ -1272,31 +1438,41 @@ function confirmPayment() {
   const time = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
   const itemCount = Object.values(cart).reduce((a, b) => a + b, 0);
 
-  // Build queue order items
   const orderItems = Object.keys(cart).map(id => {
     const p = products.find(x => x.id == id);
     return p ? { id: p.id, name: p.name, icon: p.icon, qty: cart[id], price: p.price } : null;
   }).filter(Boolean);
 
-  // Add to transaction history
   transactions.unshift({ time, items: itemCount, method: m.name, total, date: now.toISOString() });
 
-  // Add to order queue
   queueCounter++;
   localStorage.setItem('queue_counter', queueCounter);
   orderQueue.unshift({
-    qid: queueCounter,
-    time,
-    date: now.toISOString(),
-    method: m.name,
-    total,
-    items: orderItems,
-    done: false,
+    qid: queueCounter, time, date: now.toISOString(),
+    method: m.name, total, items: orderItems, done: false,
   });
+
+  // 現金払いの場合レジ内現金を更新
+  if (selMethod === 'cash') {
+    const received = parseInt(document.getElementById('cash-received-input').value) || total;
+    // 受け取った金額を加算、お釣りを減算（簡易計算）
+    cashInRegister[1] = (cashInRegister[1] || 0) + received; // 受け取り分を1円として仮積算
+    // お釣り分を引く（実際の端数は気にしない簡易版）
+    cashInRegister[1] = Math.max(0, (cashInRegister[1] || 0) - lastChange);
+    localStorage.setItem('cash_in_register', JSON.stringify(cashInRegister));
+  }
 
   saveAndSync();
   updateQueueBadge();
 
+  // 成功画面
+  const changeRow = document.getElementById('success-change-row');
+  if (selMethod === 'cash' && lastChange > 0) {
+    changeRow.style.display = 'block';
+    changeRow.innerHTML = `お釣り <strong style="font-size:20px;color:var(--primary)">${fmt(lastChange)}</strong>`;
+  } else {
+    changeRow.style.display = 'none';
+  }
   document.getElementById('success-sub').textContent = fmt(total) + '（' + m.name + '）';
   document.getElementById('payment-content').style.display = 'none';
   document.getElementById('success-view').classList.add('show');
@@ -1647,12 +1823,8 @@ function applyPreset(id) {
       products.forEach(p => { p.active = ids.includes(Number(p.id)); });
       saveAndSync(); renderGrid(); renderCategories(); renderProducts();
       switchTab('pos');
-      if (!salesOpen) {
-        salesOpen = true;
-        localStorage.setItem('sales_open', 'true');
-        updateSalesBanner();
-      }
-      showToast(`「${preset.name}」で販売開始しました 🎉`);
+      if (!salesOpen) openCashSetup();
+      showToast(`「${preset.name}」を適用しました`);
     },
     '適用して販売開始'
   );
