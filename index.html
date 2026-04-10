@@ -245,63 +245,70 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
 /* ── Payment modal ── */
 #modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;justify-content:center;z-index:100;backdrop-filter:blur(4px);}
 #modal-bg.open{display:flex;}
-#modal{background:var(--surface);border-radius:28px 28px 0 0;width:100%;max-width:960px;padding:14px 18px calc(var(--safe-bottom)+18px);animation:slideUp .3s ease;max-height:96vh;overflow-y:auto;}
+#modal{background:var(--surface);border-radius:28px 28px 0 0;width:100%;max-width:1000px;padding:14px 18px calc(var(--safe-bottom)+18px);animation:slideUp .3s ease;max-height:96vh;overflow-y:auto;}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-#modal-handle{width:36px;height:4px;border-radius:2px;background:var(--sep2);margin:0 auto 14px;}
-#modal-amount{font-size:28px;font-weight:700;text-align:center;color:var(--primary);margin-bottom:10px;padding:10px 0;background:var(--primary-light);border-radius:var(--radius-sm);}
+#modal-handle{width:36px;height:4px;border-radius:2px;background:var(--sep2);margin:0 auto 12px;}
+#modal-amount{font-size:30px;font-weight:700;text-align:center;color:var(--primary);padding:10px 0;background:var(--primary-light);border-radius:var(--radius-sm);margin-bottom:10px;}
 
-/* 横3カラムレイアウト */
+/* 3カラム */
 #payment-columns{display:flex;gap:12px;align-items:flex-start;width:100%;}
-/* 左カラム：支払方法 + お釣り + ボタン */
-#payment-col-left{width:172px;flex-shrink:0;display:flex;flex-direction:column;gap:8px;}
-#modal-title{font-size:11px;font-weight:600;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px;}
-.method-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
-.method-btn{padding:10px 4px;border:1.5px solid var(--sep);border-radius:var(--radius-sm);background:var(--surface2);cursor:pointer;text-align:center;transition:all .15s;}
+#payment-col-left{width:168px;flex-shrink:0;display:flex;flex-direction:column;gap:8px;}
+#modal-title{font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.4px;text-transform:uppercase;}
+.method-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.method-btn{padding:9px 4px;border:1.5px solid var(--sep);border-radius:var(--radius-sm);background:var(--surface2);cursor:pointer;text-align:center;transition:all .15s;}
 .method-btn.selected{border-color:var(--primary);background:var(--primary-light);}
 .method-icon{font-size:20px;display:block;margin-bottom:2px;}
 .method-name{font-size:11px;font-weight:500;}
-#change-display{padding:10px 12px;background:var(--green-bg);border-radius:var(--radius-sm);display:none;}
+#change-display{padding:9px 12px;background:var(--green-bg);border-radius:var(--radius-sm);display:none;}
 #change-display.over{background:var(--red-bg);}
-.change-label{font-size:11px;color:var(--green-text);margin-bottom:2px;}
+.change-label{font-size:11px;color:var(--green-text);margin-bottom:1px;}
 #change-display.over .change-label{color:var(--red-text);}
 .change-amount{font-size:22px;font-weight:700;color:var(--green-text);}
 #change-display.over .change-amount{color:var(--red-text);}
-#confirm-btn{width:100%;padding:14px;background:var(--primary);color:#fff;border:none;border-radius:var(--radius);font-size:15px;font-weight:600;cursor:pointer;}
-#confirm-btn:disabled{background:var(--surface2);color:var(--text3);}
-#cancel-btn{width:100%;padding:8px;background:none;color:var(--text3);border:none;font-size:14px;cursor:pointer;}
 
-/* 中カラム：金種テーブル */
-#payment-col-mid{flex:1;min-width:0;}
+/* 中カラム：紙幣・硬貨2列 */
+#payment-col-mid{flex:1;min-width:0;display:flex;flex-direction:column;gap:0;}
 .cash-quick-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;}
 .cash-quick-btn{padding:5px 10px;border:0.5px solid var(--sep2);border-radius:20px;background:var(--surface2);font-size:12px;cursor:pointer;color:var(--text);white-space:nowrap;}
 .cash-quick-btn.exact{background:var(--primary-light);border-color:var(--primary);color:var(--primary);font-weight:600;}
 .cash-received-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
 .cash-received-label{font-size:11px;font-weight:600;color:var(--text3);}
-.cash-received-total{font-size:18px;font-weight:700;color:var(--primary);}
-.cash-denom-table{width:100%;border-collapse:collapse;font-size:13px;}
-.cash-denom-table th{font-size:10px;color:var(--text3);font-weight:500;padding:3px 0;text-align:center;}
-.cash-denom-table td{padding:3px 2px;text-align:center;vertical-align:middle;}
-.denom-name{font-weight:600;text-align:left!important;padding-left:2px!important;font-size:12px;}
-.denom-stepper{display:flex;align-items:center;justify-content:center;gap:3px;}
-.denom-step-btn{width:24px;height:24px;border-radius:50%;border:0.5px solid var(--sep2);background:var(--surface);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text);flex-shrink:0;}
-.denom-count{min-width:24px;text-align:center;font-size:13px;font-weight:600;}
-.denom-subtotal{font-size:11px;color:var(--text3);min-width:44px;text-align:right!important;}
-.denom-row{cursor:pointer;}
-.denom-row:hover{background:var(--surface2);}
+.cash-received-total{font-size:20px;font-weight:700;color:var(--primary);}
+/* 紙幣・硬貨2列 */
+#cash-denom-split{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.denom-group-title{font-size:11px;font-weight:600;color:var(--text3);margin-bottom:5px;text-align:center;padding:3px 0;background:var(--surface2);border-radius:4px;}
+.cash-denom-table{width:100%;border-collapse:collapse;}
+.cash-denom-table td{padding:5px 3px;text-align:center;vertical-align:middle;border-bottom:0.5px solid var(--sep);}
+.cash-denom-table tr:last-child td{border-bottom:none;}
+.denom-name{font-weight:700;text-align:left!important;padding-left:4px!important;font-size:14px;white-space:nowrap;}
+.denom-stepper{display:flex;align-items:center;justify-content:center;gap:4px;}
+.denom-step-btn{width:28px;height:28px;border-radius:50%;border:0.5px solid var(--sep2);background:var(--surface);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text);flex-shrink:0;}
+.denom-count{min-width:28px;text-align:center;font-size:16px;font-weight:700;}
+.denom-subtotal{font-size:13px;color:var(--text3);white-space:nowrap;text-align:right!important;padding-right:4px!important;}
+.denom-row{cursor:pointer;transition:background .1s;}
+.denom-row:hover td{background:var(--surface2);}
 .denom-row.active-row td{background:var(--primary-light);}
 .denom-row.active-row .denom-name,.denom-row.active-row .denom-count{color:var(--primary);}
 
-/* 右カラム：テンキー */
-#payment-col-right{width:144px;flex-shrink:0;}
-.cash-keypad-display{background:var(--surface2);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:8px;}
+/* 右カラム：テンキー + ボタン */
+#payment-col-right{width:156px;flex-shrink:0;display:flex;flex-direction:column;gap:6px;}
+.cash-keypad-display{background:var(--surface2);border-radius:var(--radius-sm);padding:8px 10px;}
 .cash-keypad-denom-label{font-size:11px;color:var(--text3);display:block;margin-bottom:2px;}
-.cash-keypad-value{font-size:22px;font-weight:700;display:block;text-align:right;}
+.cash-keypad-value{font-size:24px;font-weight:700;display:block;text-align:right;}
 .cash-keypad-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;}
-.kp-btn{padding:11px 0;border:0.5px solid var(--sep2);border-radius:var(--radius-sm);background:var(--surface2);font-size:17px;font-weight:500;cursor:pointer;text-align:center;transition:background .1s;}
+.kp-btn{padding:12px 0;border:0.5px solid var(--sep2);border-radius:var(--radius-sm);background:var(--surface2);font-size:18px;font-weight:500;cursor:pointer;text-align:center;transition:background .1s;user-select:none;}
 .kp-btn:active{background:var(--primary);color:#fff;}
 .kp-btn.kp-zero{font-size:14px;}
 .kp-btn.kp-del{color:var(--text3);}
 .kp-btn.kp-clear{color:#FF3B30;border-color:rgba(255,59,48,.25);font-size:13px;}
+#confirm-btn,#confirm-btn-alt{width:100%;padding:14px;background:var(--primary);color:#fff;border:none;border-radius:var(--radius);font-size:15px;font-weight:600;cursor:pointer;}
+#confirm-btn:disabled,#confirm-btn-alt:disabled{background:var(--surface2);color:var(--text3);cursor:default;}
+#cancel-btn,#cancel-btn-alt{width:100%;padding:7px;background:none;color:var(--text3);border:none;font-size:13px;cursor:pointer;}
+/* 非現金時のアクション列 */
+#payment-col-actions{margin-top:10px;}
+
+/* 非現金時のアクション列 */
+#payment-col-actions{margin-top:10px;}
 
 #success-view{display:none;flex-direction:column;align-items:center;padding:10px 0 20px;}
 #success-view.show{display:flex;}
@@ -309,7 +316,7 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
 #success-title{font-size:20px;font-weight:600;margin-bottom:6px;}
 #success-sub{font-size:14px;color:var(--text3);margin-bottom:8px;}
 #success-change-row{font-size:15px;color:var(--text3);margin-bottom:24px;text-align:center;}
-#close-btn{width:100%;padding:16px;background:var(--primary);color:#fff;border:none;border-radius:var(--radius);font-size:16px;font-weight:600;cursor:pointer;}
+#close-btn{width:100%;padding:16px;background:var(--primary);color:#fff;border:none;border-radius:var(--radius);font-size:16px;font-weight:600;cursor:pointer;max-width:360px;}
 
 /* ── Add / Edit product modal ── */
 #prod-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(4px);}
@@ -604,7 +611,7 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
     <div id="payment-content">
       <div id="payment-columns">
 
-        <!-- 左：合計 + 支払方法 + お釣り + 確定 -->
+        <!-- 左：合計 + 支払方法 + お釣り -->
         <div id="payment-col-left">
           <div id="modal-amount">¥0</div>
           <div id="modal-title">支払方法</div>
@@ -613,29 +620,31 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
             <div class="change-label" id="change-label">お釣り</div>
             <div class="change-amount" id="change-amount">¥0</div>
           </div>
-          <button id="confirm-btn" onclick="confirmPayment()">確定する</button>
-          <button id="cancel-btn" onclick="closeModal()">キャンセル</button>
         </div>
 
-        <!-- 中：金種テーブル（現金のみ） -->
+        <!-- 中：紙幣（左）＋ 硬貨（右）の2列 -->
         <div id="payment-col-mid" style="display:none;">
           <div class="cash-quick-row" id="cash-quick-btns"></div>
           <div class="cash-received-header">
             <span class="cash-received-label">💴 お預かり内訳</span>
             <span class="cash-received-total" id="cash-received-total">¥0</span>
           </div>
-          <table class="cash-denom-table">
-            <thead><tr>
-              <th style="text-align:left;padding-left:2px;">金種</th>
-              <th>枚数</th>
-              <th style="text-align:right;padding-right:2px;">小計</th>
-            </tr></thead>
-            <tbody id="cash-denom-tbody"></tbody>
-          </table>
+          <div id="cash-denom-split">
+            <!-- 紙幣列 -->
+            <div class="denom-group">
+              <div class="denom-group-title">紙幣</div>
+              <table class="cash-denom-table"><tbody id="cash-denom-bills"></tbody></table>
+            </div>
+            <!-- 硬貨列 -->
+            <div class="denom-group">
+              <div class="denom-group-title">硬貨</div>
+              <table class="cash-denom-table"><tbody id="cash-denom-coins"></tbody></table>
+            </div>
+          </div>
         </div>
 
-        <!-- 右：テンキー（現金のみ） -->
-        <div id="payment-col-right" style="display:none;">
+        <!-- 右：テンキー + 確定・キャンセル -->
+        <div id="payment-col-right" style="display:none;flex-direction:column;gap:6px;">
           <div class="cash-keypad-display">
             <span class="cash-keypad-denom-label" id="kp-denom-label">金種を選択</span>
             <span class="cash-keypad-value" id="kp-value">—</span>
@@ -654,6 +663,14 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
             <button class="kp-btn kp-zero" onclick="kpInput('0')">0</button>
             <button class="kp-btn kp-del" onclick="kpDel()">⌫</button>
           </div>
+          <button id="confirm-btn" onclick="confirmPayment()">確定する</button>
+          <button id="cancel-btn" onclick="closeModal()">キャンセル</button>
+        </div>
+
+        <!-- 現金以外：確定・キャンセルは左カラム下に -->
+        <div id="payment-col-actions" style="display:none;flex-direction:column;gap:6px;width:100%;">
+          <button id="confirm-btn-alt" onclick="confirmPayment()">確定する</button>
+          <button id="cancel-btn-alt" onclick="closeModal()">キャンセル</button>
         </div>
 
       </div><!-- /payment-columns -->
@@ -1468,18 +1485,27 @@ function receivedTotal() {
 
 function updateCashInputSection(total) {
   _paymentTotal = total;
-  const colMid   = document.getElementById('payment-col-mid');
-  const colRight = document.getElementById('payment-col-right');
+  const colMid    = document.getElementById('payment-col-mid');
+  const colRight  = document.getElementById('payment-col-right');
+  const colActions= document.getElementById('payment-col-actions');
+  // confirm-btn はテンキー右列に、confirm-btn-alt は非現金用
+  const confirmBtn    = document.getElementById('confirm-btn');
+  const confirmBtnAlt = document.getElementById('confirm-btn-alt');
+  const cancelBtnAlt  = document.getElementById('cancel-btn-alt');
 
   if (selMethod !== 'cash') {
-    colMid.style.display = 'none';
-    colRight.style.display = 'none';
+    colMid.style.display    = 'none';
+    colRight.style.display  = 'none';
+    colActions.style.display= 'flex';
+    if (confirmBtn)    { confirmBtn.disabled    = false; }
+    if (confirmBtnAlt) { confirmBtnAlt.disabled = false; }
     document.getElementById('change-display').style.display = 'none';
-    document.getElementById('confirm-btn').disabled = false;
     return;
   }
-  colMid.style.display   = 'block';
-  colRight.style.display = 'block';
+
+  colMid.style.display    = 'flex';
+  colRight.style.display  = 'flex';
+  colActions.style.display= 'none';
 
   // 初期化
   cashCounts = {};
@@ -1497,10 +1523,16 @@ function updateCashInputSection(total) {
   updateChange();
 }
 
+const BILLS = [10000, 5000, 1000]; // 紙幣
+const COINS = [500, 100, 50, 10, 5, 1]; // 硬貨
+
 function renderDenomTable() {
-  const tbody = document.getElementById('cash-denom-tbody');
-  if (!tbody) return;
-  tbody.innerHTML = CASH_DENOMS.map(d => {
+  const bills = document.getElementById('cash-denom-bills');
+  const coins  = document.getElementById('cash-denom-coins');
+  const totalEl = document.getElementById('cash-received-total');
+  if (!bills || !coins) return;
+
+  const makeRow = d => {
     const cnt = cashCounts[d] || 0;
     const sub = d * cnt;
     const isActive = activeDenom === d;
@@ -1515,8 +1547,11 @@ function renderDenomTable() {
       </td>
       <td class="denom-subtotal">${sub > 0 ? fmt(sub) : '—'}</td>
     </tr>`;
-  }).join('');
-  document.getElementById('cash-received-total').textContent = fmt(receivedTotal());
+  };
+
+  bills.innerHTML = BILLS.map(makeRow).join('');
+  coins.innerHTML = COINS.map(makeRow).join('');
+  if (totalEl) totalEl.textContent = fmt(receivedTotal());
 }
 
 function selectDenom(d) {
@@ -1593,14 +1628,25 @@ function updateChange() {
   const received = receivedTotal();
   const changeDisp = document.getElementById('change-display');
   if (!changeDisp) return;
-  if (received === 0) { changeDisp.style.display = 'none'; lastChange = 0; document.getElementById('confirm-btn').disabled = false; return; }
+  const setConfirmDisabled = v => {
+    const b1 = document.getElementById('confirm-btn');
+    const b2 = document.getElementById('confirm-btn-alt');
+    if (b1) b1.disabled = v;
+    if (b2) b2.disabled = v;
+  };
+  if (received === 0) {
+    changeDisp.style.display = 'none';
+    lastChange = 0;
+    setConfirmDisabled(false);
+    return;
+  }
   const change = received - _paymentTotal;
   lastChange = change;
   changeDisp.style.display = 'block';
   changeDisp.className = change < 0 ? 'over' : '';
   document.getElementById('change-label').textContent = change < 0 ? '不足額' : 'お釣り';
   document.getElementById('change-amount').textContent = fmt(Math.abs(change));
-  document.getElementById('confirm-btn').disabled = change < 0;
+  setConfirmDisabled(change < 0);
 }
 
 // 旧関数の互換エイリアス（confirmPaymentで参照）
