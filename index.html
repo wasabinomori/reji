@@ -294,7 +294,7 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
 #payment-col-right{width:156px;flex-shrink:0;display:flex;flex-direction:column;gap:6px;}
 .cash-keypad-display{background:var(--surface2);border-radius:var(--radius-sm);padding:8px 10px;}
 .cash-keypad-denom-label{font-size:11px;color:var(--text3);display:block;margin-bottom:2px;}
-.cash-keypad-value{font-size:24px;font-weight:700;display:block;text-align:right;}
+.cash-keypad-value{font-size:26px;font-weight:700;display:block;text-align:right;letter-spacing:-.5px;}
 .cash-keypad-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;}
 .kp-btn{padding:12px 0;border:0.5px solid var(--sep2);border-radius:var(--radius-sm);background:var(--surface2);font-size:18px;font-weight:500;cursor:pointer;text-align:center;transition:background .1s;user-select:none;}
 .kp-btn:active{background:var(--primary);color:#fff;}
@@ -646,8 +646,8 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
         <!-- 右：テンキー + 確定・キャンセル -->
         <div id="payment-col-right" style="display:none;flex-direction:column;gap:6px;">
           <div class="cash-keypad-display">
-            <span class="cash-keypad-denom-label" id="kp-denom-label">金種を選択</span>
-            <span class="cash-keypad-value" id="kp-value">—</span>
+            <span class="cash-keypad-denom-label">💴 お預かり金額</span>
+            <span class="cash-keypad-value" id="kp-value">0</span>
           </div>
           <div class="cash-keypad-grid">
             <button class="kp-btn" onclick="kpInput('7')">7</button>
@@ -1480,6 +1480,9 @@ let kpStr = '';           // テンキー入力文字列
 let _paymentTotal = 0;    // 会計金額（お釣り計算用）
 
 function receivedTotal() {
+  // テンキーに値があればそちらを優先、なければ金種テーブルの合計
+  const kpVal = parseInt(kpStr) || 0;
+  if (kpVal > 0) return kpVal;
   return CASH_DENOMS.reduce((s, d) => s + d * (cashCounts[d] || 0), 0);
 }
 
@@ -1511,8 +1514,6 @@ function updateCashInputSection(total) {
   cashCounts = {};
   activeDenom = null;
   kpStr = '';
-
-  // クイックボタン
   const quickAmts = [...new Set([total, 1000, 5000, 10000, 50000].filter(a => a >= total))].sort((a,b)=>a-b);
   document.getElementById('cash-quick-btns').innerHTML = quickAmts.slice(0,5).map(a =>
     `<button class="cash-quick-btn${a === total ? ' exact' : ''}" onclick="setCashQuick(${a})">${a === total ? 'ちょうど' : fmt(a)}</button>`
@@ -1555,70 +1556,64 @@ function renderDenomTable() {
 }
 
 function selectDenom(d) {
-  activeDenom = d;
-  kpStr = cashCounts[d] ? String(cashCounts[d]) : '';
+  // 金種行クリックでそのアクティブ表示を切り替えるだけ（テンキーとは独立）
+  activeDenom = activeDenom === d ? null : d;
   renderDenomTable();
-  renderKpDisplay();
 }
 
 function stepDenom(d, delta) {
   cashCounts[d] = Math.max(0, (cashCounts[d] || 0) + delta);
-  if (activeDenom === d) kpStr = cashCounts[d] ? String(cashCounts[d]) : '';
   renderDenomTable();
-  renderKpDisplay();
+  // 金種テーブルの合計でお釣りを再計算
+  _paymentTotal && syncDenomToKp();
   updateChange();
 }
 
-function renderKpDisplay() {
-  const label = document.getElementById('kp-denom-label');
-  const val   = document.getElementById('kp-value');
-  if (!label || !val) return;
-  if (!activeDenom) {
-    label.textContent = '金種を選択';
-    val.textContent = '—';
-  } else {
-    label.textContent = DENOM_LABEL[activeDenom];
-    val.textContent = kpStr === '' ? '0' : kpStr;
-  }
+// 金種テーブルの合計をテンキー表示に同期
+function syncDenomToKp() {
+  const t = receivedTotal();
+  kpStr = t > 0 ? String(t) : '';
+  renderKpDisplay();
 }
 
-// テンキー操作
+function renderKpDisplay() {
+  const val = document.getElementById('kp-value');
+  if (!val) return;
+  const n = parseInt(kpStr) || 0;
+  val.textContent = n > 0 ? fmt(n) : '¥0';
+}
+
+// テンキー：お預かり金額を直接入力
 function kpInput(ch) {
-  if (!activeDenom) { showToast('金種を選択してください'); return; }
-  if (kpStr === '0') kpStr = ch;
+  if (kpStr.length >= 7) return; // 最大9,999,999円
+  if (kpStr === '0' || kpStr === '') kpStr = ch;
   else kpStr += ch;
-  if (parseInt(kpStr) > 999) kpStr = kpStr.slice(-3); // 最大999枚
-  cashCounts[activeDenom] = parseInt(kpStr) || 0;
-  renderDenomTable();
   renderKpDisplay();
   updateChange();
 }
 function kpDel() {
-  if (!activeDenom) return;
   kpStr = kpStr.slice(0, -1);
-  cashCounts[activeDenom] = parseInt(kpStr) || 0;
-  renderDenomTable();
   renderKpDisplay();
   updateChange();
 }
 function kpClear() {
-  if (!activeDenom) return;
   kpStr = '';
-  cashCounts[activeDenom] = 0;
-  renderDenomTable();
   renderKpDisplay();
   updateChange();
 }
 
 // ちょうど払いボタン：最小枚数で自動割当
 function setCashQuick(amount) {
+  // テンキーに金額を直接セット
+  kpStr = String(amount);
+  // 金種テーブルにも最小枚数で展開
   cashCounts = {};
   let rem = amount;
   for (const d of CASH_DENOMS) {
     const cnt = Math.floor(rem / d);
     if (cnt > 0) { cashCounts[d] = cnt; rem -= d * cnt; }
   }
-  activeDenom = null; kpStr = '';
+  activeDenom = null;
   renderDenomTable();
   renderKpDisplay();
   updateChange();
