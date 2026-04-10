@@ -504,8 +504,9 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
     <!-- プリセットパネル -->
     <div id="prod-panel-presets" style="flex:1;display:none;flex-direction:column;overflow:hidden;">
       <div id="preset-list" style="flex:1;overflow-y:auto;padding:12px;"></div>
-      <div style="padding:12px;border-top:0.5px solid var(--sep);flex-shrink:0;">
+      <div style="padding:12px;border-top:0.5px solid var(--sep);flex-shrink:0;display:flex;flex-direction:column;gap:8px;">
         <button style="width:100%;padding:13px;background:var(--primary);color:#fff;border:none;border-radius:var(--radius);font-size:15px;font-weight:600;cursor:pointer;" onclick="openPresetModal(null)">＋ プリセットを作成</button>
+        <button style="width:100%;padding:11px;background:var(--surface2);color:var(--text3);border:0.5px solid var(--sep2);border-radius:var(--radius);font-size:13px;cursor:pointer;" onclick="resetAllProducts()">↺ 全商品を販売中に戻す</button>
       </div>
     </div>
   </div>
@@ -1584,8 +1585,8 @@ function renderPresets() {
 }
 
 function openPresetModal(id) {
-  editingPresetId = id;
-  const preset = id ? presets.find(p => p.id === id) : null;
+  editingPresetId = id != null ? Number(id) : null;
+  const preset = editingPresetId != null ? presets.find(p => p.id === editingPresetId) : null;
   document.getElementById('preset-modal-title').textContent = preset ? 'プリセットを編集' : 'プリセットを作成';
   document.getElementById('preset-name-input').value = preset?.name || '';
   selPresetProducts = preset ? [...(preset.productIds || [])] : [];
@@ -1603,6 +1604,7 @@ function renderPresetProductPicker() {
   ).join('');
 }
 function togglePresetProduct(id) {
+  id = Number(id);
   if (selPresetProducts.includes(id)) selPresetProducts = selPresetProducts.filter(x => x !== id);
   else selPresetProducts.push(id);
   renderPresetProductPicker();
@@ -1623,6 +1625,7 @@ function savePreset() {
 }
 
 function deletePreset(id) {
+  id = Number(id);
   const p = presets.find(x => x.id === id);
   if (!p) return;
   showConfirmDialog(`「${p.name}」を削除`, 'この操作は元に戻せません。', () => {
@@ -1633,19 +1636,34 @@ function deletePreset(id) {
 }
 
 function applyPreset(id) {
+  id = Number(id);
   const preset = presets.find(p => p.id === id);
   if (!preset) return;
-  // このプリセットの商品のみ active にする（他は非表示）
-  products.forEach(p => { p.active = preset.productIds.includes(p.id); });
-  saveAndSync(); renderGrid(); renderCategories(); renderProducts();
-  // POSタブに切り替え
-  switchTab('pos');
-  if (!salesOpen) {
-    salesOpen = true;
-    localStorage.setItem('sales_open', 'true');
-    updateSalesBanner();
-  }
-  showToast(`「${preset.name}」で販売開始しました 🎉`);
+  const ids = preset.productIds.map(Number);
+  showConfirmDialog(
+    `「${preset.name}」を適用`,
+    `このプリセットの${ids.length}商品のみ販売状態にします。`,
+    () => {
+      products.forEach(p => { p.active = ids.includes(Number(p.id)); });
+      saveAndSync(); renderGrid(); renderCategories(); renderProducts();
+      switchTab('pos');
+      if (!salesOpen) {
+        salesOpen = true;
+        localStorage.setItem('sales_open', 'true');
+        updateSalesBanner();
+      }
+      showToast(`「${preset.name}」で販売開始しました 🎉`);
+    },
+    '適用して販売開始'
+  );
+}
+
+function resetAllProducts() {
+  showConfirmDialog('全商品を販売中に戻す', 'すべての商品をアクティブ状態に戻します。', () => {
+    products.forEach(p => { p.active = true; });
+    saveAndSync(); renderGrid(); renderCategories(); renderProducts(); renderPresets();
+    showToast('全商品を販売中に戻しました');
+  }, '戻す');
 }
 // ══════════════════════════════════════════════
 function renderReport() {
