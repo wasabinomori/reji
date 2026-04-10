@@ -245,23 +245,70 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
 /* ── Payment modal ── */
 #modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;justify-content:center;z-index:100;backdrop-filter:blur(4px);}
 #modal-bg.open{display:flex;}
-#modal{background:var(--surface);border-radius:28px 28px 0 0;width:100%;max-width:480px;padding:20px 24px calc(var(--safe-bottom) + 24px);animation:slideUp .3s ease;max-height:92vh;overflow-y:auto;}
+#modal{background:var(--surface);border-radius:28px 28px 0 0;width:100%;max-width:960px;padding:14px 18px calc(var(--safe-bottom)+18px);animation:slideUp .3s ease;max-height:96vh;overflow-y:auto;}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-#modal-handle{width:36px;height:4px;border-radius:2px;background:var(--sep2);margin:0 auto 20px;}
-#modal-title{font-size:18px;font-weight:600;text-align:center;margin-bottom:6px;}
-#modal-amount{font-size:38px;font-weight:700;text-align:center;color:var(--primary);margin-bottom:20px;}
-.method-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
-.method-btn{padding:14px 10px;border:1.5px solid var(--sep);border-radius:var(--radius);background:var(--surface2);cursor:pointer;text-align:center;transition:all .15s;}
+#modal-handle{width:36px;height:4px;border-radius:2px;background:var(--sep2);margin:0 auto 14px;}
+#modal-amount{font-size:28px;font-weight:700;text-align:center;color:var(--primary);margin-bottom:10px;padding:10px 0;background:var(--primary-light);border-radius:var(--radius-sm);}
+
+/* 横3カラムレイアウト */
+#payment-columns{display:flex;gap:12px;align-items:flex-start;width:100%;}
+/* 左カラム：支払方法 + お釣り + ボタン */
+#payment-col-left{width:172px;flex-shrink:0;display:flex;flex-direction:column;gap:8px;}
+#modal-title{font-size:11px;font-weight:600;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px;}
+.method-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.method-btn{padding:10px 4px;border:1.5px solid var(--sep);border-radius:var(--radius-sm);background:var(--surface2);cursor:pointer;text-align:center;transition:all .15s;}
 .method-btn.selected{border-color:var(--primary);background:var(--primary-light);}
-.method-icon{font-size:24px;display:block;margin-bottom:4px;}
-.method-name{font-size:13px;font-weight:500;}
-#confirm-btn{width:100%;padding:16px;background:var(--primary);color:#fff;border:none;border-radius:var(--radius);font-size:16px;font-weight:600;cursor:pointer;margin-bottom:10px;}
-#cancel-btn{width:100%;padding:10px;background:none;color:var(--text3);border:none;font-size:15px;cursor:pointer;}
+.method-icon{font-size:20px;display:block;margin-bottom:2px;}
+.method-name{font-size:11px;font-weight:500;}
+#change-display{padding:10px 12px;background:var(--green-bg);border-radius:var(--radius-sm);display:none;}
+#change-display.over{background:var(--red-bg);}
+.change-label{font-size:11px;color:var(--green-text);margin-bottom:2px;}
+#change-display.over .change-label{color:var(--red-text);}
+.change-amount{font-size:22px;font-weight:700;color:var(--green-text);}
+#change-display.over .change-amount{color:var(--red-text);}
+#confirm-btn{width:100%;padding:14px;background:var(--primary);color:#fff;border:none;border-radius:var(--radius);font-size:15px;font-weight:600;cursor:pointer;}
+#confirm-btn:disabled{background:var(--surface2);color:var(--text3);}
+#cancel-btn{width:100%;padding:8px;background:none;color:var(--text3);border:none;font-size:14px;cursor:pointer;}
+
+/* 中カラム：金種テーブル */
+#payment-col-mid{flex:1;min-width:0;}
+.cash-quick-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;}
+.cash-quick-btn{padding:5px 10px;border:0.5px solid var(--sep2);border-radius:20px;background:var(--surface2);font-size:12px;cursor:pointer;color:var(--text);white-space:nowrap;}
+.cash-quick-btn.exact{background:var(--primary-light);border-color:var(--primary);color:var(--primary);font-weight:600;}
+.cash-received-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
+.cash-received-label{font-size:11px;font-weight:600;color:var(--text3);}
+.cash-received-total{font-size:18px;font-weight:700;color:var(--primary);}
+.cash-denom-table{width:100%;border-collapse:collapse;font-size:13px;}
+.cash-denom-table th{font-size:10px;color:var(--text3);font-weight:500;padding:3px 0;text-align:center;}
+.cash-denom-table td{padding:3px 2px;text-align:center;vertical-align:middle;}
+.denom-name{font-weight:600;text-align:left!important;padding-left:2px!important;font-size:12px;}
+.denom-stepper{display:flex;align-items:center;justify-content:center;gap:3px;}
+.denom-step-btn{width:24px;height:24px;border-radius:50%;border:0.5px solid var(--sep2);background:var(--surface);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text);flex-shrink:0;}
+.denom-count{min-width:24px;text-align:center;font-size:13px;font-weight:600;}
+.denom-subtotal{font-size:11px;color:var(--text3);min-width:44px;text-align:right!important;}
+.denom-row{cursor:pointer;}
+.denom-row:hover{background:var(--surface2);}
+.denom-row.active-row td{background:var(--primary-light);}
+.denom-row.active-row .denom-name,.denom-row.active-row .denom-count{color:var(--primary);}
+
+/* 右カラム：テンキー */
+#payment-col-right{width:144px;flex-shrink:0;}
+.cash-keypad-display{background:var(--surface2);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:8px;}
+.cash-keypad-denom-label{font-size:11px;color:var(--text3);display:block;margin-bottom:2px;}
+.cash-keypad-value{font-size:22px;font-weight:700;display:block;text-align:right;}
+.cash-keypad-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;}
+.kp-btn{padding:11px 0;border:0.5px solid var(--sep2);border-radius:var(--radius-sm);background:var(--surface2);font-size:17px;font-weight:500;cursor:pointer;text-align:center;transition:background .1s;}
+.kp-btn:active{background:var(--primary);color:#fff;}
+.kp-btn.kp-zero{font-size:14px;}
+.kp-btn.kp-del{color:var(--text3);}
+.kp-btn.kp-clear{color:#FF3B30;border-color:rgba(255,59,48,.25);font-size:13px;}
+
 #success-view{display:none;flex-direction:column;align-items:center;padding:10px 0 20px;}
 #success-view.show{display:flex;}
 .success-circle{width:72px;height:72px;border-radius:50%;background:var(--green-bg);display:flex;align-items:center;justify-content:center;margin-bottom:14px;font-size:32px;}
 #success-title{font-size:20px;font-weight:600;margin-bottom:6px;}
-#success-sub{font-size:14px;color:var(--text3);margin-bottom:24px;}
+#success-sub{font-size:14px;color:var(--text3);margin-bottom:8px;}
+#success-change-row{font-size:15px;color:var(--text3);margin-bottom:24px;text-align:center;}
 #close-btn{width:100%;padding:16px;background:var(--primary);color:#fff;border:none;border-radius:var(--radius);font-size:16px;font-weight:600;cursor:pointer;}
 
 /* ── Add / Edit product modal ── */
@@ -400,45 +447,6 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
 #cash-setup-skip{background:var(--surface2);color:var(--text);}
 #cash-setup-ok{background:var(--primary);color:#fff;}
 /* ── Cash input in payment modal ── */
-#cash-input-section{background:var(--surface2);border-radius:var(--radius-sm);padding:12px;margin-bottom:14px;display:none;}
-.cash-received-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;}
-.cash-received-label{font-size:12px;font-weight:600;color:var(--text3);}
-.cash-received-total{font-size:20px;font-weight:700;color:var(--primary);}
-/* 金種テーブル */
-.cash-denom-table{width:100%;border-collapse:collapse;margin-bottom:10px;font-size:13px;}
-.cash-denom-table th{font-size:11px;color:var(--text3);font-weight:500;padding:4px 0;text-align:center;}
-.cash-denom-table td{padding:4px 2px;text-align:center;vertical-align:middle;}
-.denom-name{font-weight:600;text-align:left!important;padding-left:4px!important;}
-.denom-note{font-size:10px;color:var(--text3);font-weight:400;}
-.denom-stepper{display:flex;align-items:center;justify-content:center;gap:4px;}
-.denom-step-btn{width:28px;height:28px;border-radius:50%;border:0.5px solid var(--sep2);background:var(--surface);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text);flex-shrink:0;}
-.denom-count{min-width:28px;text-align:center;font-size:14px;font-weight:600;}
-.denom-subtotal{font-size:12px;color:var(--text3);min-width:52px;text-align:right!important;}
-.denom-row.active-row .denom-name{color:var(--primary);}
-.denom-row.active-row .denom-count{color:var(--primary);}
-/* テンキー */
-.cash-keypad-wrap{margin-top:8px;border-top:0.5px solid var(--sep);padding-top:10px;}
-.cash-keypad-display{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border-radius:var(--radius-sm);padding:8px 12px;margin-bottom:8px;}
-.cash-keypad-denom-label{font-size:12px;color:var(--text3);}
-.cash-keypad-value{font-size:20px;font-weight:700;min-width:60px;text-align:right;}
-.cash-keypad-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
-.kp-btn{padding:12px 0;border:0.5px solid var(--sep2);border-radius:var(--radius-sm);background:var(--surface);font-size:18px;font-weight:500;cursor:pointer;text-align:center;transition:background .1s;}
-.kp-btn:active{background:var(--primary-light);}
-.kp-btn.kp-zero{font-size:15px;}
-.kp-btn.kp-del{font-size:16px;color:var(--text3);}
-.kp-btn.kp-clear{font-size:13px;color:#FF3B30;border-color:rgba(255,59,48,.25);}
-/* クイックボタン */
-.cash-quick-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
-.cash-quick-btn{padding:6px 12px;border:0.5px solid var(--sep2);border-radius:20px;background:var(--surface);font-size:13px;cursor:pointer;color:var(--text);white-space:nowrap;}
-.cash-quick-btn.exact{background:var(--primary-light);border-color:var(--primary);color:var(--primary);font-weight:600;}
-/* お釣り */
-#change-display{display:none;padding:10px 14px;background:var(--green-bg);border-radius:var(--radius-sm);}
-#change-display.over{background:var(--red-bg);}
-.change-label{font-size:12px;color:var(--green-text);margin-bottom:2px;}
-#change-display.over .change-label{color:var(--red-text);}
-.change-amount{font-size:24px;font-weight:700;color:var(--green-text);}
-#change-display.over .change-amount{color:var(--red-text);}
-#success-change-row{font-size:15px;color:var(--text3);margin-bottom:24px;text-align:center;}
 
 /* ── Confirm dialog ── */
 #confirm-dialog-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:400;backdrop-filter:blur(4px);}
@@ -594,29 +602,40 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
   <div id="modal">
     <div id="modal-handle"></div>
     <div id="payment-content">
-      <div id="modal-title">お支払い方法</div>
-      <div id="modal-amount">¥0</div>
-      <div class="method-grid" id="method-grid"></div>
-      <!-- 現金入力・お釣り計算 -->
-      <div id="cash-input-section">
-        <!-- クイック（ちょうど・一般額） -->
-        <div class="cash-quick-row" id="cash-quick-btns"></div>
-        <!-- 受取合計 -->
-        <div class="cash-received-header">
-          <span class="cash-received-label">💴 お預かり内訳</span>
-          <span class="cash-received-total" id="cash-received-total">¥0</span>
+      <div id="payment-columns">
+
+        <!-- 左：合計 + 支払方法 + お釣り + 確定 -->
+        <div id="payment-col-left">
+          <div id="modal-amount">¥0</div>
+          <div id="modal-title">支払方法</div>
+          <div class="method-grid" id="method-grid"></div>
+          <div id="change-display">
+            <div class="change-label" id="change-label">お釣り</div>
+            <div class="change-amount" id="change-amount">¥0</div>
+          </div>
+          <button id="confirm-btn" onclick="confirmPayment()">確定する</button>
+          <button id="cancel-btn" onclick="closeModal()">キャンセル</button>
         </div>
-        <!-- 金種テーブル -->
-        <table class="cash-denom-table">
-          <thead><tr>
-            <th style="text-align:left;padding-left:4px;">金種</th>
-            <th>枚数</th>
-            <th style="text-align:right;padding-right:4px;">小計</th>
-          </tr></thead>
-          <tbody id="cash-denom-tbody"></tbody>
-        </table>
-        <!-- テンキー -->
-        <div class="cash-keypad-wrap">
+
+        <!-- 中：金種テーブル（現金のみ） -->
+        <div id="payment-col-mid" style="display:none;">
+          <div class="cash-quick-row" id="cash-quick-btns"></div>
+          <div class="cash-received-header">
+            <span class="cash-received-label">💴 お預かり内訳</span>
+            <span class="cash-received-total" id="cash-received-total">¥0</span>
+          </div>
+          <table class="cash-denom-table">
+            <thead><tr>
+              <th style="text-align:left;padding-left:2px;">金種</th>
+              <th>枚数</th>
+              <th style="text-align:right;padding-right:2px;">小計</th>
+            </tr></thead>
+            <tbody id="cash-denom-tbody"></tbody>
+          </table>
+        </div>
+
+        <!-- 右：テンキー（現金のみ） -->
+        <div id="payment-col-right" style="display:none;">
           <div class="cash-keypad-display">
             <span class="cash-keypad-denom-label" id="kp-denom-label">金種を選択</span>
             <span class="cash-keypad-value" id="kp-value">—</span>
@@ -636,15 +655,10 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
             <button class="kp-btn kp-del" onclick="kpDel()">⌫</button>
           </div>
         </div>
-        <!-- お釣り -->
-        <div id="change-display" style="margin-top:10px;">
-          <div class="change-label" id="change-label">お釣り</div>
-          <div class="change-amount" id="change-amount">¥0</div>
-        </div>
-      </div>
-      <button id="confirm-btn" onclick="confirmPayment()">確定する</button>
-      <button id="cancel-btn" onclick="closeModal()">キャンセル</button>
-    </div>
+
+      </div><!-- /payment-columns -->
+    </div><!-- /payment-content -->
+
     <div id="success-view">
       <div class="success-circle">✓</div>
       <div id="success-title">お支払い完了</div>
@@ -1454,17 +1468,26 @@ function receivedTotal() {
 
 function updateCashInputSection(total) {
   _paymentTotal = total;
-  const section = document.getElementById('cash-input-section');
-  if (selMethod !== 'cash') { section.style.display = 'none'; return; }
-  section.style.display = 'block';
+  const colMid   = document.getElementById('payment-col-mid');
+  const colRight = document.getElementById('payment-col-right');
+
+  if (selMethod !== 'cash') {
+    colMid.style.display = 'none';
+    colRight.style.display = 'none';
+    document.getElementById('change-display').style.display = 'none';
+    document.getElementById('confirm-btn').disabled = false;
+    return;
+  }
+  colMid.style.display   = 'block';
+  colRight.style.display = 'block';
 
   // 初期化
   cashCounts = {};
   activeDenom = null;
   kpStr = '';
 
-  // クイックボタン（ちょうど＋一般紙幣）
-  const quickAmts = [total, 1000, 5000, 10000, 50000].filter((a,i,arr) => a >= total && arr.indexOf(a) === i).sort((a,b)=>a-b);
+  // クイックボタン
+  const quickAmts = [...new Set([total, 1000, 5000, 10000, 50000].filter(a => a >= total))].sort((a,b)=>a-b);
   document.getElementById('cash-quick-btns').innerHTML = quickAmts.slice(0,5).map(a =>
     `<button class="cash-quick-btn${a === total ? ' exact' : ''}" onclick="setCashQuick(${a})">${a === total ? 'ちょうど' : fmt(a)}</button>`
   ).join('');
