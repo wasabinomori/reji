@@ -327,7 +327,32 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
 #tax-cancel{background:var(--surface2);color:var(--text);}
 #tax-confirm{background:var(--primary);color:#fff;}
 
-/* ── Drive modals ── */
+/* ── Products subtab ── */
+#prod-subtab-bar{display:flex;align-items:center;gap:3px;padding:8px 12px;background:var(--surface);border-bottom:0.5px solid var(--sep2);flex-shrink:0;}
+.prod-subtab{flex:1;padding:7px 0;border:none;background:var(--surface2);color:var(--text3);font-size:13px;font-weight:500;border-radius:var(--radius-sm);cursor:pointer;transition:all .15s;}
+.prod-subtab.active{background:var(--primary);color:#fff;}
+#drive-sync-btn{padding:7px 14px;border:0.5px solid var(--sep2);border-radius:var(--radius-sm);background:var(--surface2);font-size:12px;color:var(--text3);cursor:pointer;white-space:nowrap;flex-shrink:0;}
+#drive-sync-btn.syncing{opacity:.5;pointer-events:none;}
+
+/* ── Preset cards ── */
+.preset-card{background:var(--surface);border-radius:var(--radius);border:0.5px solid var(--sep);margin-bottom:10px;overflow:hidden;}
+.preset-card-header{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:0.5px solid var(--sep);}
+.preset-card-name{flex:1;font-size:15px;font-weight:600;}
+.preset-card-count{font-size:12px;color:var(--text3);}
+.preset-card-actions{display:flex;gap:6px;}
+.preset-items{display:flex;flex-wrap:wrap;gap:6px;padding:10px 14px;}
+.preset-item-chip{display:flex;align-items:center;gap:4px;padding:4px 10px;background:var(--surface2);border-radius:14px;font-size:12px;}
+.preset-apply-btn{width:100%;padding:10px;background:var(--primary-light);color:var(--primary);border:none;font-size:14px;font-weight:600;cursor:pointer;border-top:0.5px solid var(--sep);}
+.preset-apply-btn:active{background:var(--primary);color:#fff;}
+
+/* ── Preset modal ── */
+#preset-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(4px);}
+#preset-modal-bg.open{display:flex;}
+#preset-modal{background:var(--surface);border-radius:var(--radius);width:92%;max-width:420px;padding:24px;max-height:88vh;overflow-y:auto;}
+#preset-modal h3{font-size:17px;font-weight:600;margin-bottom:18px;text-align:center;}
+#preset-product-picker{display:flex;flex-wrap:wrap;gap:6px;padding:8px 0;}
+.preset-pick-chip{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:14px;border:1.5px solid var(--sep2);background:var(--surface2);font-size:13px;cursor:pointer;transition:all .15s;color:var(--text3);}
+.preset-pick-chip.sel{border-color:var(--primary);background:var(--primary-light);color:var(--primary);}
 #setup-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:300;backdrop-filter:blur(6px);}
 #setup-bg.open{display:flex;}
 #setup-box{background:var(--surface);border-radius:var(--radius);width:92%;max-width:440px;padding:28px 24px;max-height:90vh;overflow-y:auto;}
@@ -465,8 +490,24 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
       <button id="tags-manage-btn" onclick="openTagsModal()">🏷 タグ</button>
       <button id="add-product-btn" onclick="openProdModal(null)">＋ 追加</button>
     </div>
-    <div id="prod-filter-bar"></div>
-    <div id="product-list"></div>
+    <!-- サブタブ: 商品一覧 / プリセット -->
+    <div id="prod-subtab-bar">
+      <button class="prod-subtab active" onclick="switchProdSubtab('products')">商品一覧</button>
+      <button class="prod-subtab" onclick="switchProdSubtab('presets')">プリセット</button>
+      <button id="drive-sync-btn" onclick="manualDriveSync()" title="Driveと同期">☁️ 同期</button>
+    </div>
+    <!-- 商品一覧パネル -->
+    <div id="prod-panel-products" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+      <div id="prod-filter-bar"></div>
+      <div id="product-list" style="flex:1;overflow-y:auto;"></div>
+    </div>
+    <!-- プリセットパネル -->
+    <div id="prod-panel-presets" style="flex:1;display:none;flex-direction:column;overflow:hidden;">
+      <div id="preset-list" style="flex:1;overflow-y:auto;padding:12px;"></div>
+      <div style="padding:12px;border-top:0.5px solid var(--sep);flex-shrink:0;">
+        <button style="width:100%;padding:13px;background:var(--primary);color:#fff;border:none;border-radius:var(--radius);font-size:15px;font-weight:600;cursor:pointer;" onclick="openPresetModal(null)">＋ プリセットを作成</button>
+      </div>
+    </div>
   </div>
 
   <!-- Report -->
@@ -523,6 +564,22 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
     <div class="prod-modal-btns">
       <button id="prod-modal-cancel" onclick="closeProdModal()">キャンセル</button>
       <button id="prod-modal-confirm" onclick="saveProd()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Preset modal -->
+<div id="preset-modal-bg" onclick="if(event.target===this)closePresetModal()">
+  <div id="preset-modal">
+    <h3 id="preset-modal-title">プリセットを作成</h3>
+    <div class="form-field"><label>プリセット名</label><input id="preset-name-input" type="text" placeholder="例：週末マルシェ・秋限定"></div>
+    <div class="form-field">
+      <label>販売する商品を選択</label>
+      <div id="preset-product-picker"></div>
+    </div>
+    <div class="prod-modal-btns">
+      <button id="preset-modal-cancel" onclick="closePresetModal()" style="background:var(--surface2);color:var(--text);">キャンセル</button>
+      <button id="preset-modal-confirm" onclick="savePreset()" style="background:var(--primary);color:#fff;">保存</button>
     </div>
   </div>
 </div>
@@ -667,9 +724,15 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
 // ══════════════════════════════════════════════
 // CONSTANTS
 // ══════════════════════════════════════════════
-const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.appdata';
-const DRIVE_SCOPE_FILE = 'https://www.googleapis.com/auth/drive.file';
-const DRIVE_FILENAME = 'marche-data.json';
+// Drive: drive.fileスコープに統一（appdata廃止）
+const DRIVE_SCOPE_FILE  = 'https://www.googleapis.com/auth/drive.file';
+const DRIVE_SCOPE       = DRIVE_SCOPE_FILE; // 後方互換エイリアス
+const DRIVE_ROOT        = 'regi';
+const DRIVE_ITEMS_DIR   = 'items';
+const DRIVE_PRESETS_DIR = 'presets';
+const DRIVE_RESULTS_DIR = 'results';
+const DRIVE_ITEMS_FILE   = 'items.json';
+const DRIVE_PRESETS_FILE = 'presets.json';
 const METHODS = [
   {id:'cash',  name:'現金',     icon:'💴'},
   {id:'card',  name:'クレジット',icon:'💳'},
@@ -680,19 +743,22 @@ const METHODS = [
 // ══════════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════════
-let products = [], transactions = [], tags = [], orderQueue = [];
+let products = [], transactions = [], tags = [], orderQueue = [], presets = [];
 let cart = {}, discPct = 0, selMethod = 'cash', selCat = 'すべて';
-let driveToken = null, driveFileId = null, lastSync = null, syncTimer = null;
+let driveToken = null, lastSync = null, syncTimer = null;
+// Drive folder ID cache  { root, items, presets, results }
+let driveFolderIds = JSON.parse(localStorage.getItem('drive_folder_ids') || 'null') || {};
 let clientId = localStorage.getItem('gdrive_client_id') || '';
 let salesOpen = JSON.parse(localStorage.getItem('sales_open') ?? 'false');
 let taxEnabled = JSON.parse(localStorage.getItem('tax_enabled') ?? 'true');
 let taxRate = parseFloat(localStorage.getItem('tax_rate') ?? '10');
 let _taxEnabled, _taxRate, _taxCustom = false;
-let editingProdId = null;
-let selModalTags = [];
+let editingProdId = null, editingPresetId = null;
+let selModalTags = [], selPresetProducts = [];
 let prodFilterCat = 'すべて';
 let queueCounter = JSON.parse(localStorage.getItem('queue_counter') ?? '0');
 let confirmDialogOkCb = null;
+let driveFileToken = null; // CSV保存用（drive.fileスコープ）
 
 // ══════════════════════════════════════════════
 // BOOT
@@ -718,10 +784,11 @@ function loadLocal() {
   transactions = d?.transactions || defaultTx();
   tags = d?.tags || defaultTags();
   orderQueue = d?.orderQueue || [];
+  presets = d?.presets || [];
 }
 
 function saveLocal() {
-  localStorage.setItem('marche_data', JSON.stringify({ products, transactions, tags, orderQueue }));
+  localStorage.setItem('marche_data', JSON.stringify({ products, transactions, tags, orderQueue, presets }));
 }
 
 function saveAndSync() {
@@ -853,88 +920,146 @@ async function tryAutoSignIn() {
 function signOut() {
   if (driveToken && window.google?.accounts?.oauth2)
     google.accounts.oauth2.revoke(driveToken);
-  driveToken = null; driveFileId = null; lastSync = null;
+  driveToken = null; driveFileToken = null; lastSync = null;
+  driveFolderIds = {};
   localStorage.removeItem('gdrive_auto');
-  localStorage.removeItem('gdrive_file_id');
+  localStorage.removeItem('drive_folder_ids');
   updateSyncBtn(); closeDrivePanel();
   showToast('サインアウトしました');
 }
 
 // ══════════════════════════════════════════════
-// DRIVE FILE OPS
+// DRIVE FILE OPS  (regi/ フォルダ構造)
 // ══════════════════════════════════════════════
+
+// 汎用リクエスト（driveTokenを使う）
 async function driveReq(url, opts = {}) {
   const res = await fetch(url, {
-    ...opts,
-    headers: { Authorization: 'Bearer ' + driveToken, ...(opts.headers || {}) }
+    ...opts, headers: { Authorization: 'Bearer ' + driveToken, ...(opts.headers || {}) }
   });
   if (res.status === 401) { driveToken = null; updateSyncBtn(); throw new Error('auth'); }
   return res;
 }
-async function getFileId() {
-  if (driveFileId) return driveFileId;
-  const saved = localStorage.getItem('gdrive_file_id');
-  if (saved) { driveFileId = saved; return driveFileId; }
-  const q = encodeURIComponent(`name='${DRIVE_FILENAME}'`);
-  const r = await driveReq(`https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=${q}&fields=files(id)`);
+
+// フォルダを検索 or 作成して id を返す
+async function ensureFolder(name, parentId = null) {
+  const cacheKey = parentId ? `${parentId}/${name}` : name;
+  if (driveFolderIds[cacheKey]) return driveFolderIds[cacheKey];
+
+  let q = `name='${name}' and mimeType='application/vnd.google-apps.folder' and trashed=false`;
+  if (parentId) q += ` and '${parentId}' in parents`;
+  const r = await driveReq(
+    `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id)`
+  );
   const d = await r.json();
   if (d.files?.length) {
-    driveFileId = d.files[0].id;
-    localStorage.setItem('gdrive_file_id', driveFileId);
-    return driveFileId;
+    driveFolderIds[cacheKey] = d.files[0].id;
+  } else {
+    const body = { name, mimeType: 'application/vnd.google-apps.folder' };
+    if (parentId) body.parents = [parentId];
+    const cr = await driveReq('https://www.googleapis.com/drive/v3/files?fields=id', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+    });
+    driveFolderIds[cacheKey] = (await cr.json()).id;
   }
-  const cr = await driveReq('https://www.googleapis.com/drive/v3/files?fields=id', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name: DRIVE_FILENAME, parents: ['appDataFolder'] })
-  });
-  const cf = await cr.json();
-  driveFileId = cf.id;
-  localStorage.setItem('gdrive_file_id', driveFileId);
-  return driveFileId;
+  localStorage.setItem('drive_folder_ids', JSON.stringify(driveFolderIds));
+  return driveFolderIds[cacheKey];
 }
+
+// フォルダ構造を準備して { rootId, itemsId, presetsId, resultsId } を返す
+async function ensureFolderStructure() {
+  const rootId     = await ensureFolder(DRIVE_ROOT);
+  const itemsId    = await ensureFolder(DRIVE_ITEMS_DIR,   rootId);
+  const presetsId  = await ensureFolder(DRIVE_PRESETS_DIR, rootId);
+  const resultsId  = await ensureFolder(DRIVE_RESULTS_DIR, rootId);
+  return { rootId, itemsId, presetsId, resultsId };
+}
+
+// JSON ファイルを上書き保存（なければ作成）
+async function upsertJson(filename, parentId, payload) {
+  const q = encodeURIComponent(`name='${filename}' and '${parentId}' in parents and trashed=false`);
+  const sr = await driveReq(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id)`);
+  const sd = await sr.json();
+  const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+  const form = new FormData();
+  if (sd.files?.length) {
+    // 更新
+    form.append('metadata', new Blob([JSON.stringify({ name: filename })], { type: 'application/json' }));
+    form.append('file', blob);
+    await driveReq(
+      `https://www.googleapis.com/upload/drive/v3/files/${sd.files[0].id}?uploadType=multipart`,
+      { method: 'PATCH', body: form }
+    );
+  } else {
+    // 新規作成
+    form.append('metadata', new Blob([JSON.stringify({ name: filename, parents: [parentId] })], { type: 'application/json' }));
+    form.append('file', blob);
+    await driveReq(
+      `https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id`,
+      { method: 'POST', body: form }
+    );
+  }
+}
+
+// JSON ファイルを読み込む（存在しなければ null）
+async function readJson(filename, parentId) {
+  const q = encodeURIComponent(`name='${filename}' and '${parentId}' in parents and trashed=false`);
+  const sr = await driveReq(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id)`);
+  const sd = await sr.json();
+  if (!sd.files?.length) return null;
+  const r = await driveReq(`https://www.googleapis.com/drive/v3/files/${sd.files[0].id}?alt=media`);
+  return r.ok ? await r.json() : null;
+}
+
+// ── Push: items.json / presets.json を書き込み ──
+async function pushToDrive() {
+  if (!driveToken) return;
+  try {
+    const { itemsId, presetsId } = await ensureFolderStructure();
+    await Promise.all([
+      upsertJson(DRIVE_ITEMS_FILE,   itemsId,   { products, tags, updatedAt: new Date().toISOString() }),
+      upsertJson(DRIVE_PRESETS_FILE, presetsId, { presets,       updatedAt: new Date().toISOString() }),
+    ]);
+    lastSync = new Date();
+    setSyncState('synced', '同期済み');
+  } catch(e) { console.error('pushToDrive', e); setSyncState('error', 'エラー'); }
+}
+
+// ── Pull: items.json / presets.json を読み込んでマージ ──
 async function pullFromDrive() {
   if (!driveToken) return;
   setSyncState('syncing', '同期中...');
   try {
-    const fid = await getFileId();
-    const r = await driveReq(`https://www.googleapis.com/drive/v3/files/${fid}?alt=media`);
-    const text = await r.text();
-    if (text.trim()) { const remote = JSON.parse(text); mergeRemote(remote); }
+    const { itemsId, presetsId } = await ensureFolderStructure();
+    const [remoteItems, remotePresets] = await Promise.all([
+      readJson(DRIVE_ITEMS_FILE,   itemsId),
+      readJson(DRIVE_PRESETS_FILE, presetsId),
+    ]);
+    if (remoteItems) {
+      // 商品: リモート優先マージ（idで重複排除）
+      const localIds = new Set(products.map(p => p.id));
+      const newProds = (remoteItems.products || []).filter(p => !localIds.has(p.id));
+      products = [...products, ...newProds];
+      if (remoteItems.tags) tags = [...new Set([...tags, ...remoteItems.tags])];
+    }
+    if (remotePresets?.presets) {
+      const localPids = new Set(presets.map(p => p.id));
+      const newPresets = remotePresets.presets.filter(p => !localPids.has(p.id));
+      presets = [...presets, ...newPresets];
+    }
+    saveLocal();
     await pushToDrive();
     lastSync = new Date();
     setSyncState('synced', '同期済み');
     showToast('Driveから同期しました ☁️');
     renderAll();
-  } catch (e) {
+    renderProducts();
+    renderPresets();
+  } catch(e) {
+    console.error('pullFromDrive', e);
     setSyncState('error', 'エラー');
     showToast('同期に失敗しました');
   }
-}
-async function pushToDrive() {
-  if (!driveToken) return;
-  try {
-    const fid = await getFileId();
-    const payload = JSON.stringify({ products, transactions, tags, orderQueue, updatedAt: new Date().toISOString() });
-    const form = new FormData();
-    form.append('metadata', new Blob([JSON.stringify({ name: DRIVE_FILENAME })], { type: 'application/json' }));
-    form.append('file', new Blob([payload], { type: 'application/json' }));
-    await driveReq(`https://www.googleapis.com/upload/drive/v3/files/${fid}?uploadType=multipart`, {
-      method: 'PATCH', body: form
-    });
-    lastSync = new Date();
-    setSyncState('synced', '同期済み');
-  } catch (e) { setSyncState('error', 'エラー'); }
-}
-function mergeRemote(remote) {
-  const localIds = new Set(products.map(p => p.id));
-  const newProds = (remote.products || []).filter(p => !localIds.has(p.id));
-  products = [...products, ...newProds];
-  const localKeys = new Set(transactions.map(t => t.date + '_' + t.total));
-  const newTx = (remote.transactions || []).filter(t => !localKeys.has(t.date + '_' + t.total));
-  transactions = [...transactions, ...newTx].sort((a, b) => new Date(b.date) - new Date(a.date));
-  if (remote.tags) tags = [...new Set([...tags, ...remote.tags])];
-  saveLocal();
 }
 
 // ══════════════════════════════════════════════
@@ -1001,9 +1126,26 @@ function switchTab(tab) {
   document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', tabs[i] === tab));
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById(tab + '-view').classList.add('active');
-  if (tab === 'products') { renderProdFilterBar(); renderProducts(); }
+  if (tab === 'products') { renderProdFilterBar(); renderProducts(); renderPresets(); }
   if (tab === 'report') renderReport();
   if (tab === 'queue') renderQueue();
+}
+
+function switchProdSubtab(sub) {
+  document.querySelectorAll('.prod-subtab').forEach((b,i) => b.classList.toggle('active', ['products','presets'][i] === sub));
+  document.getElementById('prod-panel-products').style.display = sub === 'products' ? 'flex' : 'none';
+  document.getElementById('prod-panel-presets').style.display  = sub === 'presets'  ? 'flex' : 'none';
+  if (sub === 'presets') renderPresets();
+}
+
+async function manualDriveSync() {
+  if (!driveToken) { showToast('Driveに接続されていません'); return; }
+  const btn = document.getElementById('drive-sync-btn');
+  btn.classList.add('syncing');
+  btn.textContent = '同期中...';
+  await pullFromDrive();
+  btn.classList.remove('syncing');
+  btn.textContent = '☁️ 同期';
 }
 
 // ══════════════════════════════════════════════
@@ -1412,8 +1554,99 @@ function deleteTag(t) {
   }, '削除する');
 }
 
-// ══════════════════════════════════════════════
-// REPORT
+// ── Preset management ──────────────────────────
+function renderPresets() {
+  const el = document.getElementById('preset-list');
+  if (!el) return;
+  if (!presets.length) {
+    el.innerHTML = `<div style="text-align:center;padding:40px 0;color:var(--text3);">
+      <div style="font-size:40px;opacity:.3;margin-bottom:10px;">📋</div>
+      <div style="font-size:13px;">プリセットがありません<br>よく使う商品セットを登録しましょう</div>
+    </div>`;
+    return;
+  }
+  el.innerHTML = presets.map(preset => {
+    const items = (preset.productIds || []).map(id => products.find(p => p.id == id)).filter(Boolean);
+    const chips = items.map(p => `<div class="preset-item-chip">${p.icon} ${p.name}</div>`).join('');
+    return `<div class="preset-card">
+      <div class="preset-card-header">
+        <span class="preset-card-name">${preset.name}</span>
+        <span class="preset-card-count">${items.length}商品</span>
+        <div class="preset-card-actions">
+          <button class="icon-btn" onclick="openPresetModal(${preset.id})" title="編集">✏️</button>
+          <button class="icon-btn danger" onclick="deletePreset(${preset.id})" title="削除">🗑</button>
+        </div>
+      </div>
+      <div class="preset-items">${chips || '<span style="font-size:12px;color:var(--text3)">商品なし</span>'}</div>
+      <button class="preset-apply-btn" onclick="applyPreset(${preset.id})">▶ このプリセットで販売開始</button>
+    </div>`;
+  }).join('');
+}
+
+function openPresetModal(id) {
+  editingPresetId = id;
+  const preset = id ? presets.find(p => p.id === id) : null;
+  document.getElementById('preset-modal-title').textContent = preset ? 'プリセットを編集' : 'プリセットを作成';
+  document.getElementById('preset-name-input').value = preset?.name || '';
+  selPresetProducts = preset ? [...(preset.productIds || [])] : [];
+  renderPresetProductPicker();
+  document.getElementById('preset-modal-bg').classList.add('open');
+}
+function closePresetModal() { document.getElementById('preset-modal-bg').classList.remove('open'); }
+
+function renderPresetProductPicker() {
+  const el = document.getElementById('preset-product-picker');
+  el.innerHTML = products.map(p =>
+    `<div class="preset-pick-chip${selPresetProducts.includes(p.id) ? ' sel' : ''}" onclick="togglePresetProduct(${p.id})">
+      ${p.icon} ${p.name}
+    </div>`
+  ).join('');
+}
+function togglePresetProduct(id) {
+  if (selPresetProducts.includes(id)) selPresetProducts = selPresetProducts.filter(x => x !== id);
+  else selPresetProducts.push(id);
+  renderPresetProductPicker();
+}
+
+function savePreset() {
+  const name = document.getElementById('preset-name-input').value.trim();
+  if (!name) { showToast('プリセット名を入力してください'); return; }
+  if (!selPresetProducts.length) { showToast('商品を1つ以上選択してください'); return; }
+  if (editingPresetId) {
+    const p = presets.find(x => x.id === editingPresetId);
+    if (p) { p.name = name; p.productIds = [...selPresetProducts]; }
+  } else {
+    presets.push({ id: Date.now(), name, productIds: [...selPresetProducts] });
+  }
+  saveAndSync(); closePresetModal(); renderPresets();
+  showToast(editingPresetId ? 'プリセットを更新しました' : 'プリセットを作成しました');
+}
+
+function deletePreset(id) {
+  const p = presets.find(x => x.id === id);
+  if (!p) return;
+  showConfirmDialog(`「${p.name}」を削除`, 'この操作は元に戻せません。', () => {
+    presets = presets.filter(x => x.id !== id);
+    saveAndSync(); renderPresets();
+    showToast('プリセットを削除しました');
+  }, '削除する');
+}
+
+function applyPreset(id) {
+  const preset = presets.find(p => p.id === id);
+  if (!preset) return;
+  // このプリセットの商品のみ active にする（他は非表示）
+  products.forEach(p => { p.active = preset.productIds.includes(p.id); });
+  saveAndSync(); renderGrid(); renderCategories(); renderProducts();
+  // POSタブに切り替え
+  switchTab('pos');
+  if (!salesOpen) {
+    salesOpen = true;
+    localStorage.setItem('sales_open', 'true');
+    updateSalesBanner();
+  }
+  showToast(`「${preset.name}」で販売開始しました 🎉`);
+}
 // ══════════════════════════════════════════════
 function renderReport() {
   const now = new Date();
@@ -1598,19 +1831,15 @@ function exportCsvLocal() {
 }
 
 // ── Google Drive保存 ─────────────────────────
-// CSV保存用トークン（drive.fileスコープ付き）は別管理
-let driveFileToken = null;
-
 async function getDriveFileToken() {
-  // 有効なトークンがあればそのまま返す
+  if (driveToken) return driveToken; // 既存トークンを流用
   if (driveFileToken) return driveFileToken;
   if (!clientId) throw new Error('no_client_id');
   await loadGIS();
   driveFileToken = await new Promise((ok, ng) => {
     google.accounts.oauth2.initTokenClient({
       client_id: clientId,
-      // appdata + drive.file の両方を要求
-      scope: DRIVE_SCOPE + ' ' + DRIVE_SCOPE_FILE,
+      scope: DRIVE_SCOPE_FILE,
       callback: r => r.error ? ng(r) : ok(r.access_token),
     }).requestAccessToken({ prompt: 'consent' });
   });
@@ -1620,84 +1849,56 @@ async function getDriveFileToken() {
 async function exportCsvDrive() {
   const driveBtn = document.getElementById('se-drive-btn');
   const driveLabel = document.getElementById('se-drive-label');
-
-  if (!clientId) {
-    showToast('Drive連携を先に設定してください');
-    openSetup();
-    return;
-  }
+  if (!clientId) { showToast('Drive連携を先に設定してください'); openSetup(); return; }
 
   driveBtn.classList.add('loading');
   driveLabel.textContent = 'サインイン中...';
 
   try {
     const token = await getDriveFileToken();
+    // driveTokenも更新しておく（同期にも使えるように）
+    if (!driveToken) driveToken = token;
 
     driveLabel.textContent = 'アップロード中...';
     const { csv, filename } = buildCsvData();
 
-    // ── 「マルシェレジ」フォルダを検索 or 作成 ──
-    const folderName = 'マルシェレジ';
-    const fq = encodeURIComponent(
-      `name='${folderName}' and mimeType='application/vnd.google-apps.folder' and trashed=false`
-    );
-    const fRes = await fetch(
-      `https://www.googleapis.com/drive/v3/files?q=${fq}&fields=files(id)`,
-      { headers: { Authorization: 'Bearer ' + token } }
-    );
-    if (!fRes.ok) {
-      const err = await fRes.json();
-      throw new Error(`folder search failed: ${err.error?.message || fRes.status}`);
-    }
-    const fData = await fRes.json();
+    // regi/results/ フォルダを準備
+    const { resultsId } = await ensureFolderStructure();
 
-    let folderId;
-    if (fData.files?.length) {
-      folderId = fData.files[0].id;
-    } else {
-      const mkRes = await fetch('https://www.googleapis.com/drive/v3/files?fields=id', {
-        method: 'POST',
-        headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: folderName, mimeType: 'application/vnd.google-apps.folder' })
-      });
-      if (!mkRes.ok) {
-        const err = await mkRes.json();
-        throw new Error(`folder create failed: ${err.error?.message || mkRes.status}`);
-      }
-      folderId = (await mkRes.json()).id;
-    }
-
-    // ── CSVをアップロード ──
-    const meta = { name: filename, parents: [folderId], mimeType: 'text/csv' };
+    // CSV アップロード（同名ファイルが既にあれば上書き）
+    const q = encodeURIComponent(`name='${filename}' and '${resultsId}' in parents and trashed=false`);
+    const sr = await driveReq(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id)`);
+    const sd = await sr.json();
+    const csvBlob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const form = new FormData();
-    form.append('metadata', new Blob([JSON.stringify(meta)], { type: 'application/json' }));
-    form.append('file', new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
-    const upRes = await fetch(
-      'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name',
-      { method: 'POST', headers: { Authorization: 'Bearer ' + token }, body: form }
-    );
-    if (!upRes.ok) {
-      const err = await upRes.json();
-      throw new Error(`upload failed: ${err.error?.message || upRes.status}`);
+    if (sd.files?.length) {
+      form.append('metadata', new Blob([JSON.stringify({ name: filename })], { type: 'application/json' }));
+      form.append('file', csvBlob);
+      await driveReq(
+        `https://www.googleapis.com/upload/drive/v3/files/${sd.files[0].id}?uploadType=multipart`,
+        { method: 'PATCH', body: form }
+      );
+    } else {
+      form.append('metadata', new Blob([JSON.stringify({ name: filename, parents: [resultsId] })], { type: 'application/json' }));
+      form.append('file', csvBlob);
+      await driveReq(
+        `https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id`,
+        { method: 'POST', body: form }
+      );
     }
 
     driveBtn.classList.remove('loading');
     driveBtn.classList.add('done');
     driveLabel.textContent = '保存完了！';
-    showToast(`Driveの「${folderName}」に保存しました ☁️`);
+    showToast(`regi/results/ に保存しました ☁️`);
     setTimeout(() => { driveBtn.classList.remove('done'); driveLabel.textContent = 'Driveに保存'; }, 4000);
-
   } catch(e) {
     console.error('Drive CSV export error:', e);
-    driveFileToken = null; // トークンをリセットして次回再取得させる
+    driveFileToken = null;
     driveBtn.classList.remove('loading');
     driveLabel.textContent = 'Driveに保存';
-    if (e.message === 'no_client_id') {
-      showToast('Drive連携を先に設定してください');
-      openSetup();
-    } else {
-      showToast(`Drive保存に失敗: ${e.message}`);
-    }
+    if (e.message === 'no_client_id') { showToast('Drive連携を先に設定してください'); openSetup(); }
+    else showToast(`Drive保存に失敗: ${e.message}`);
   }
 }
 
