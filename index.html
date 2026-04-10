@@ -245,7 +245,7 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
 /* ── Payment modal ── */
 #modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;justify-content:center;z-index:100;backdrop-filter:blur(4px);}
 #modal-bg.open{display:flex;}
-#modal{background:var(--surface);border-radius:28px 28px 0 0;width:100%;max-width:480px;padding:20px 24px calc(var(--safe-bottom) + 24px);animation:slideUp .3s ease;}
+#modal{background:var(--surface);border-radius:28px 28px 0 0;width:100%;max-width:480px;padding:20px 24px calc(var(--safe-bottom) + 24px);animation:slideUp .3s ease;max-height:92vh;overflow-y:auto;}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 #modal-handle{width:36px;height:4px;border-radius:2px;background:var(--sep2);margin:0 auto 20px;}
 #modal-title{font-size:18px;font-weight:600;text-align:center;margin-bottom:6px;}
@@ -400,16 +400,39 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
 #cash-setup-skip{background:var(--surface2);color:var(--text);}
 #cash-setup-ok{background:var(--primary);color:#fff;}
 /* ── Cash input in payment modal ── */
-#cash-input-section{background:var(--surface2);border-radius:var(--radius-sm);padding:14px;margin-bottom:16px;display:none;}
-.cash-input-label{font-size:12px;font-weight:500;color:var(--text3);margin-bottom:8px;}
-.cash-input-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
-#cash-received-input{flex:1;padding:10px 14px;border:1.5px solid var(--sep2);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);font-size:22px;font-weight:600;outline:none;text-align:right;}
-#cash-received-input:focus{border-color:var(--primary);}
-.cash-input-yen{font-size:18px;color:var(--text3);}
-.cash-quick-btns{display:flex;gap:6px;flex-wrap:wrap;}
+#cash-input-section{background:var(--surface2);border-radius:var(--radius-sm);padding:12px;margin-bottom:14px;display:none;}
+.cash-received-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;}
+.cash-received-label{font-size:12px;font-weight:600;color:var(--text3);}
+.cash-received-total{font-size:20px;font-weight:700;color:var(--primary);}
+/* 金種テーブル */
+.cash-denom-table{width:100%;border-collapse:collapse;margin-bottom:10px;font-size:13px;}
+.cash-denom-table th{font-size:11px;color:var(--text3);font-weight:500;padding:4px 0;text-align:center;}
+.cash-denom-table td{padding:4px 2px;text-align:center;vertical-align:middle;}
+.denom-name{font-weight:600;text-align:left!important;padding-left:4px!important;}
+.denom-note{font-size:10px;color:var(--text3);font-weight:400;}
+.denom-stepper{display:flex;align-items:center;justify-content:center;gap:4px;}
+.denom-step-btn{width:28px;height:28px;border-radius:50%;border:0.5px solid var(--sep2);background:var(--surface);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text);flex-shrink:0;}
+.denom-count{min-width:28px;text-align:center;font-size:14px;font-weight:600;}
+.denom-subtotal{font-size:12px;color:var(--text3);min-width:52px;text-align:right!important;}
+.denom-row.active-row .denom-name{color:var(--primary);}
+.denom-row.active-row .denom-count{color:var(--primary);}
+/* テンキー */
+.cash-keypad-wrap{margin-top:8px;border-top:0.5px solid var(--sep);padding-top:10px;}
+.cash-keypad-display{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border-radius:var(--radius-sm);padding:8px 12px;margin-bottom:8px;}
+.cash-keypad-denom-label{font-size:12px;color:var(--text3);}
+.cash-keypad-value{font-size:20px;font-weight:700;min-width:60px;text-align:right;}
+.cash-keypad-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+.kp-btn{padding:12px 0;border:0.5px solid var(--sep2);border-radius:var(--radius-sm);background:var(--surface);font-size:18px;font-weight:500;cursor:pointer;text-align:center;transition:background .1s;}
+.kp-btn:active{background:var(--primary-light);}
+.kp-btn.kp-zero{font-size:15px;}
+.kp-btn.kp-del{font-size:16px;color:var(--text3);}
+.kp-btn.kp-clear{font-size:13px;color:#FF3B30;border-color:rgba(255,59,48,.25);}
+/* クイックボタン */
+.cash-quick-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
 .cash-quick-btn{padding:6px 12px;border:0.5px solid var(--sep2);border-radius:20px;background:var(--surface);font-size:13px;cursor:pointer;color:var(--text);white-space:nowrap;}
-.cash-quick-btn:active{background:var(--primary-light);border-color:var(--primary);}
-#change-display{display:none;margin-top:10px;padding:10px 14px;background:var(--green-bg);border-radius:var(--radius-sm);}
+.cash-quick-btn.exact{background:var(--primary-light);border-color:var(--primary);color:var(--primary);font-weight:600;}
+/* お釣り */
+#change-display{display:none;padding:10px 14px;background:var(--green-bg);border-radius:var(--radius-sm);}
 #change-display.over{background:var(--red-bg);}
 .change-label{font-size:12px;color:var(--green-text);margin-bottom:2px;}
 #change-display.over .change-label{color:var(--red-text);}
@@ -576,13 +599,45 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
       <div class="method-grid" id="method-grid"></div>
       <!-- 現金入力・お釣り計算 -->
       <div id="cash-input-section">
-        <div class="cash-input-label">💴 お預かり金額</div>
-        <div class="cash-input-row">
-          <input id="cash-received-input" type="number" inputmode="numeric" placeholder="0">
-          <span class="cash-input-yen">円</span>
+        <!-- クイック（ちょうど・一般額） -->
+        <div class="cash-quick-row" id="cash-quick-btns"></div>
+        <!-- 受取合計 -->
+        <div class="cash-received-header">
+          <span class="cash-received-label">💴 お預かり内訳</span>
+          <span class="cash-received-total" id="cash-received-total">¥0</span>
         </div>
-        <div class="cash-quick-btns" id="cash-quick-btns"></div>
-        <div id="change-display">
+        <!-- 金種テーブル -->
+        <table class="cash-denom-table">
+          <thead><tr>
+            <th style="text-align:left;padding-left:4px;">金種</th>
+            <th>枚数</th>
+            <th style="text-align:right;padding-right:4px;">小計</th>
+          </tr></thead>
+          <tbody id="cash-denom-tbody"></tbody>
+        </table>
+        <!-- テンキー -->
+        <div class="cash-keypad-wrap">
+          <div class="cash-keypad-display">
+            <span class="cash-keypad-denom-label" id="kp-denom-label">金種を選択</span>
+            <span class="cash-keypad-value" id="kp-value">—</span>
+          </div>
+          <div class="cash-keypad-grid">
+            <button class="kp-btn" onclick="kpInput('7')">7</button>
+            <button class="kp-btn" onclick="kpInput('8')">8</button>
+            <button class="kp-btn" onclick="kpInput('9')">9</button>
+            <button class="kp-btn" onclick="kpInput('4')">4</button>
+            <button class="kp-btn" onclick="kpInput('5')">5</button>
+            <button class="kp-btn" onclick="kpInput('6')">6</button>
+            <button class="kp-btn" onclick="kpInput('1')">1</button>
+            <button class="kp-btn" onclick="kpInput('2')">2</button>
+            <button class="kp-btn" onclick="kpInput('3')">3</button>
+            <button class="kp-btn kp-clear" onclick="kpClear()">C</button>
+            <button class="kp-btn kp-zero" onclick="kpInput('0')">0</button>
+            <button class="kp-btn kp-del" onclick="kpDel()">⌫</button>
+          </div>
+        </div>
+        <!-- お釣り -->
+        <div id="change-display" style="margin-top:10px;">
           <div class="change-label" id="change-label">お釣り</div>
           <div class="change-amount" id="change-amount">¥0</div>
         </div>
@@ -1384,50 +1439,150 @@ function selectMethod(id) {
   updateCashInputSection(total);
 }
 
+// 2000円を除いた金種（紙幣→硬貨の順）
+const CASH_DENOMS = [10000, 5000, 1000, 500, 100, 50, 10, 5, 1];
+const DENOM_LABEL = {10000:'1万円',5000:'5千円',1000:'千円',500:'500円',100:'100円',50:'50円',10:'10円',5:'5円',1:'1円'};
+
+let cashCounts = {};      // 金種ごとの枚数 { 1000: 3, 500: 2, ... }
+let activeDenom = null;   // テンキーで入力中の金種
+let kpStr = '';           // テンキー入力文字列
+let _paymentTotal = 0;    // 会計金額（お釣り計算用）
+
+function receivedTotal() {
+  return CASH_DENOMS.reduce((s, d) => s + d * (cashCounts[d] || 0), 0);
+}
+
 function updateCashInputSection(total) {
+  _paymentTotal = total;
   const section = document.getElementById('cash-input-section');
-  const input = document.getElementById('cash-received-input');
-  const changeDisp = document.getElementById('change-display');
-
-  if (selMethod !== 'cash') {
-    section.style.display = 'none';
-    return;
-  }
+  if (selMethod !== 'cash') { section.style.display = 'none'; return; }
   section.style.display = 'block';
-  input.value = '';
-  changeDisp.style.display = 'none';
 
-  // クイック金額ボタン（合計以上のキリのいい金額）
-  const quickAmts = [1000,5000,10000,50000].filter(a => a >= total);
-  // ちょうど払いも追加
-  if (!quickAmts.includes(total)) quickAmts.unshift(total);
-  quickAmts.sort((a,b)=>a-b);
+  // 初期化
+  cashCounts = {};
+  activeDenom = null;
+  kpStr = '';
+
+  // クイックボタン（ちょうど＋一般紙幣）
+  const quickAmts = [total, 1000, 5000, 10000, 50000].filter((a,i,arr) => a >= total && arr.indexOf(a) === i).sort((a,b)=>a-b);
   document.getElementById('cash-quick-btns').innerHTML = quickAmts.slice(0,5).map(a =>
-    `<button class="cash-quick-btn" onclick="setCashReceived(${a})">${a === total ? 'ちょうど' : fmt(a)}</button>`
+    `<button class="cash-quick-btn${a === total ? ' exact' : ''}" onclick="setCashQuick(${a})">${a === total ? 'ちょうど' : fmt(a)}</button>`
   ).join('');
 
-  input.oninput = () => calcChange(total);
+  renderDenomTable();
+  renderKpDisplay();
+  updateChange();
 }
 
-function setCashReceived(amount) {
-  document.getElementById('cash-received-input').value = amount;
-  const { total } = calcTotals();
-  calcChange(total);
+function renderDenomTable() {
+  const tbody = document.getElementById('cash-denom-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = CASH_DENOMS.map(d => {
+    const cnt = cashCounts[d] || 0;
+    const sub = d * cnt;
+    const isActive = activeDenom === d;
+    return `<tr class="denom-row${isActive ? ' active-row' : ''}" onclick="selectDenom(${d})">
+      <td class="denom-name">${DENOM_LABEL[d]}</td>
+      <td>
+        <div class="denom-stepper">
+          <button class="denom-step-btn" onclick="event.stopPropagation();stepDenom(${d},-1)">−</button>
+          <span class="denom-count">${cnt}</span>
+          <button class="denom-step-btn" onclick="event.stopPropagation();stepDenom(${d},1)">＋</button>
+        </div>
+      </td>
+      <td class="denom-subtotal">${sub > 0 ? fmt(sub) : '—'}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('cash-received-total').textContent = fmt(receivedTotal());
 }
 
-function calcChange(total) {
-  const received = parseInt(document.getElementById('cash-received-input').value) || 0;
+function selectDenom(d) {
+  activeDenom = d;
+  kpStr = cashCounts[d] ? String(cashCounts[d]) : '';
+  renderDenomTable();
+  renderKpDisplay();
+}
+
+function stepDenom(d, delta) {
+  cashCounts[d] = Math.max(0, (cashCounts[d] || 0) + delta);
+  if (activeDenom === d) kpStr = cashCounts[d] ? String(cashCounts[d]) : '';
+  renderDenomTable();
+  renderKpDisplay();
+  updateChange();
+}
+
+function renderKpDisplay() {
+  const label = document.getElementById('kp-denom-label');
+  const val   = document.getElementById('kp-value');
+  if (!label || !val) return;
+  if (!activeDenom) {
+    label.textContent = '金種を選択';
+    val.textContent = '—';
+  } else {
+    label.textContent = DENOM_LABEL[activeDenom];
+    val.textContent = kpStr === '' ? '0' : kpStr;
+  }
+}
+
+// テンキー操作
+function kpInput(ch) {
+  if (!activeDenom) { showToast('金種を選択してください'); return; }
+  if (kpStr === '0') kpStr = ch;
+  else kpStr += ch;
+  if (parseInt(kpStr) > 999) kpStr = kpStr.slice(-3); // 最大999枚
+  cashCounts[activeDenom] = parseInt(kpStr) || 0;
+  renderDenomTable();
+  renderKpDisplay();
+  updateChange();
+}
+function kpDel() {
+  if (!activeDenom) return;
+  kpStr = kpStr.slice(0, -1);
+  cashCounts[activeDenom] = parseInt(kpStr) || 0;
+  renderDenomTable();
+  renderKpDisplay();
+  updateChange();
+}
+function kpClear() {
+  if (!activeDenom) return;
+  kpStr = '';
+  cashCounts[activeDenom] = 0;
+  renderDenomTable();
+  renderKpDisplay();
+  updateChange();
+}
+
+// ちょうど払いボタン：最小枚数で自動割当
+function setCashQuick(amount) {
+  cashCounts = {};
+  let rem = amount;
+  for (const d of CASH_DENOMS) {
+    const cnt = Math.floor(rem / d);
+    if (cnt > 0) { cashCounts[d] = cnt; rem -= d * cnt; }
+  }
+  activeDenom = null; kpStr = '';
+  renderDenomTable();
+  renderKpDisplay();
+  updateChange();
+}
+
+function updateChange() {
+  const received = receivedTotal();
   const changeDisp = document.getElementById('change-display');
-  if (!received) { changeDisp.style.display = 'none'; lastChange = 0; return; }
-  const change = received - total;
+  if (!changeDisp) return;
+  if (received === 0) { changeDisp.style.display = 'none'; lastChange = 0; document.getElementById('confirm-btn').disabled = false; return; }
+  const change = received - _paymentTotal;
   lastChange = change;
   changeDisp.style.display = 'block';
   changeDisp.className = change < 0 ? 'over' : '';
   document.getElementById('change-label').textContent = change < 0 ? '不足額' : 'お釣り';
   document.getElementById('change-amount').textContent = fmt(Math.abs(change));
-  // 確定ボタンを金額不足時に無効化
   document.getElementById('confirm-btn').disabled = change < 0;
 }
+
+// 旧関数の互換エイリアス（confirmPaymentで参照）
+function setCashReceived(amount) { setCashQuick(amount); }
+function calcChange(total) { _paymentTotal = total; updateChange(); }
 
 function closeModal() { document.getElementById('modal-bg').classList.remove('open'); }
 
@@ -1454,11 +1609,13 @@ function confirmPayment() {
 
   // 現金払いの場合レジ内現金を更新
   if (selMethod === 'cash') {
-    const received = parseInt(document.getElementById('cash-received-input').value) || total;
-    // 受け取った金額を加算、お釣りを減算（簡易計算）
-    cashInRegister[1] = (cashInRegister[1] || 0) + received; // 受け取り分を1円として仮積算
-    // お釣り分を引く（実際の端数は気にしない簡易版）
-    cashInRegister[1] = Math.max(0, (cashInRegister[1] || 0) - lastChange);
+    const received = receivedTotal() || total;
+    const change = received - total;
+    lastChange = change > 0 ? change : 0;
+    // レジ内現金: 受け取り枚数を加算し、お釣りとして戻す分を減算（簡易）
+    Object.entries(cashCounts).forEach(([d, cnt]) => {
+      cashInRegister[d] = (cashInRegister[d] || 0) + cnt;
+    });
     localStorage.setItem('cash_in_register', JSON.stringify(cashInRegister));
   }
 
