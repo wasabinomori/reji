@@ -277,18 +277,17 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
 /* 紙幣・硬貨2列 */
 #cash-denom-split{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .denom-group-title{font-size:11px;font-weight:600;color:var(--text3);margin-bottom:5px;text-align:center;padding:3px 0;background:var(--surface2);border-radius:4px;}
-.cash-denom-table{width:100%;border-collapse:collapse;}
-.cash-denom-table td{padding:5px 3px;text-align:center;vertical-align:middle;border-bottom:0.5px solid var(--sep);}
+.cash-denom-table{width:100%;border-collapse:collapse;table-layout:fixed;}
+.cash-denom-table colgroup col:nth-child(1){width:44%;}
+.cash-denom-table colgroup col:nth-child(2){width:32%;}
+.cash-denom-table colgroup col:nth-child(3){width:24%;}
+.cash-denom-table td{padding:5px 2px;text-align:center;vertical-align:middle;border-bottom:0.5px solid var(--sep);overflow:hidden;}
 .cash-denom-table tr:last-child td{border-bottom:none;}
-.denom-name{font-weight:700;text-align:left!important;padding-left:4px!important;font-size:14px;white-space:nowrap;}
-.denom-stepper{display:flex;align-items:center;justify-content:center;gap:4px;}
-.denom-step-btn{width:28px;height:28px;border-radius:50%;border:0.5px solid var(--sep2);background:var(--surface);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text);flex-shrink:0;}
-.denom-count{min-width:28px;text-align:center;font-size:16px;font-weight:700;}
-.denom-subtotal{font-size:13px;color:var(--text3);white-space:nowrap;text-align:right!important;padding-right:4px!important;}
-.denom-row{cursor:pointer;transition:background .1s;}
-.denom-row:hover td{background:var(--surface2);}
-.denom-row.active-row td{background:var(--primary-light);}
-.denom-row.active-row .denom-name,.denom-row.active-row .denom-count{color:var(--primary);}
+.denom-name{font-weight:700;text-align:left!important;padding-left:4px!important;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.denom-stepper{display:flex;align-items:center;justify-content:center;gap:3px;}
+.denom-step-btn{width:26px;height:26px;border-radius:50%;border:0.5px solid var(--sep2);background:var(--surface);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text);flex-shrink:0;}
+.denom-count{width:22px;text-align:center;font-size:15px;font-weight:700;display:inline-block;}
+.denom-subtotal{font-size:12px;color:var(--text3);text-align:right!important;padding-right:4px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
 /* 右カラム：テンキー + ボタン */
 #payment-col-right{width:156px;flex-shrink:0;display:flex;flex-direction:column;gap:6px;}
@@ -1523,13 +1522,17 @@ const COINS  = [500, 100, 50, 10, 5, 1];
 
 // テーブルのDOM構造を1回だけ構築（行・セルはここで固定）
 function buildDenomTable() {
+  const colgroup = `<colgroup><col><col><col></colgroup>`;
   const makeRows = (denoms, tbodyId) => {
     const tbody = document.getElementById(tbodyId);
     if (!tbody) return;
-    tbody.innerHTML = denoms.map(d =>
+    // tableにcolgroupを設定
+    tbody.parentElement.innerHTML = colgroup + `<tbody id="${tbodyId}"></tbody>`;
+    const newTbody = document.getElementById(tbodyId);
+    newTbody.innerHTML = denoms.map(d =>
       `<tr class="denom-row" id="drow-${d}">
         <td class="denom-name">${DENOM_LABEL[d]}</td>
-        <td style="white-space:nowrap;">
+        <td>
           <div class="denom-stepper">
             <button class="denom-step-btn" onclick="stepDenom(${d},-1)">−</button>
             <span class="denom-count" id="dcnt-${d}">0</span>
