@@ -1598,80 +1598,106 @@ function exportCsvLocal() {
 }
 
 // ── Google Drive保存 ─────────────────────────
+// CSV保存用トークン（drive.fileスコープ付き）は別管理
+let driveFileToken = null;
+
+async function getDriveFileToken() {
+  // 有効なトークンがあればそのまま返す
+  if (driveFileToken) return driveFileToken;
+  if (!clientId) throw new Error('no_client_id');
+  await loadGIS();
+  driveFileToken = await new Promise((ok, ng) => {
+    google.accounts.oauth2.initTokenClient({
+      client_id: clientId,
+      // appdata + drive.file の両方を要求
+      scope: DRIVE_SCOPE + ' ' + DRIVE_SCOPE_FILE,
+      callback: r => r.error ? ng(r) : ok(r.access_token),
+    }).requestAccessToken({ prompt: 'consent' });
+  });
+  return driveFileToken;
+}
+
 async function exportCsvDrive() {
   const driveBtn = document.getElementById('se-drive-btn');
   const driveLabel = document.getElementById('se-drive-label');
 
-  // Drive未連携の場合はサインインを促す
-  if (!driveToken) {
-    if (!clientId) { showToast('Drive連携を先に設定してください'); openSetup(); return; }
-    showToast('Googleにサインインしています...');
-    try {
-      await loadGIS();
-      // CSV保存にはdrive.fileスコープが必要
-      driveToken = await new Promise((ok, ng) => {
-        google.accounts.oauth2.initTokenClient({
-          client_id: clientId,
-          scope: DRIVE_SCOPE + ' ' + DRIVE_SCOPE_FILE,
-          callback: r => r.error ? ng(r) : ok(r.access_token),
-        }).requestAccessToken({ prompt: 'consent' });
-      });
-    } catch(e) {
-      showToast('サインインに失敗しました');
-      return;
-    }
+  if (!clientId) {
+    showToast('Drive連携を先に設定してください');
+    openSetup();
+    return;
   }
 
   driveBtn.classList.add('loading');
-  driveLabel.textContent = 'アップロード中...';
+  driveLabel.textContent = 'サインイン中...';
 
   try {
+    const token = await getDriveFileToken();
+
+    driveLabel.textContent = 'アップロード中...';
     const { csv, filename } = buildCsvData();
-    // マイドライブに「マルシェレジ」フォルダを作成 or 検索
+
+    // ── 「マルシェレジ」フォルダを検索 or 作成 ──
     const folderName = 'マルシェレジ';
-    let folderId = null;
-    const fq = encodeURIComponent(`name='${folderName}' and mimeType='application/vnd.google-apps.folder' and trashed=false`);
-    const fRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${fq}&fields=files(id)`, {
-      headers: { Authorization: 'Bearer ' + driveToken }
-    });
+    const fq = encodeURIComponent(
+      `name='${folderName}' and mimeType='application/vnd.google-apps.folder' and trashed=false`
+    );
+    const fRes = await fetch(
+      `https://www.googleapis.com/drive/v3/files?q=${fq}&fields=files(id)`,
+      { headers: { Authorization: 'Bearer ' + token } }
+    );
+    if (!fRes.ok) {
+      const err = await fRes.json();
+      throw new Error(`folder search failed: ${err.error?.message || fRes.status}`);
+    }
     const fData = await fRes.json();
+
+    let folderId;
     if (fData.files?.length) {
       folderId = fData.files[0].id;
     } else {
-      // フォルダ新規作成
       const mkRes = await fetch('https://www.googleapis.com/drive/v3/files?fields=id', {
         method: 'POST',
-        headers: { Authorization: 'Bearer ' + driveToken, 'Content-Type': 'application/json' },
+        headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: folderName, mimeType: 'application/vnd.google-apps.folder' })
       });
-      const mkData = await mkRes.json();
-      folderId = mkData.id;
+      if (!mkRes.ok) {
+        const err = await mkRes.json();
+        throw new Error(`folder create failed: ${err.error?.message || mkRes.status}`);
+      }
+      folderId = (await mkRes.json()).id;
     }
 
-    // CSVファイルをアップロード
+    // ── CSVをアップロード ──
     const meta = { name: filename, parents: [folderId], mimeType: 'text/csv' };
     const form = new FormData();
     form.append('metadata', new Blob([JSON.stringify(meta)], { type: 'application/json' }));
     form.append('file', new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
-    const upRes = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name', {
-      method: 'POST',
-      headers: { Authorization: 'Bearer ' + driveToken },
-      body: form
-    });
-    if (!upRes.ok) throw new Error('upload failed');
+    const upRes = await fetch(
+      'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name',
+      { method: 'POST', headers: { Authorization: 'Bearer ' + token }, body: form }
+    );
+    if (!upRes.ok) {
+      const err = await upRes.json();
+      throw new Error(`upload failed: ${err.error?.message || upRes.status}`);
+    }
 
     driveBtn.classList.remove('loading');
     driveBtn.classList.add('done');
     driveLabel.textContent = '保存完了！';
-    showToast(`Driveの「${folderName}」フォルダに保存しました ☁️`);
-    setTimeout(() => {
-      driveBtn.classList.remove('done');
-      driveLabel.textContent = 'Driveに保存';
-    }, 4000);
+    showToast(`Driveの「${folderName}」に保存しました ☁️`);
+    setTimeout(() => { driveBtn.classList.remove('done'); driveLabel.textContent = 'Driveに保存'; }, 4000);
+
   } catch(e) {
+    console.error('Drive CSV export error:', e);
+    driveFileToken = null; // トークンをリセットして次回再取得させる
     driveBtn.classList.remove('loading');
     driveLabel.textContent = 'Driveに保存';
-    showToast('Drive保存に失敗しました。再試行してください');
+    if (e.message === 'no_client_id') {
+      showToast('Drive連携を先に設定してください');
+      openSetup();
+    } else {
+      showToast(`Drive保存に失敗: ${e.message}`);
+    }
   }
 }
 
