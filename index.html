@@ -2390,10 +2390,18 @@ function updateQueueBadge() {
 
 function markOrderDone(qid) {
   const order = orderQueue.find(o => o.qid === qid);
-  if (order) { order.done = true; saveAndSync(); updateQueueBadge(); renderQueue(); renderQueueSummary();
-    // P2P: キッチンへ提供済みを通知
-    p2pBroadcastDone(qid);
-  }
+  if (!order || order.done) return;
+  order.done = true;
+  saveAndSync();
+  updateQueueBadge();
+  // 呼び出し状態を解除
+  hostCallingSet.delete(qid);
+  renderHostCallingBar();
+  renderQueue();
+  renderQueueSummary();
+  // 全子機へ: 提供済み通知 + 呼び出し状態更新
+  p2pBroadcast({ type: 'order_done', qid });
+  p2pBroadcast({ type: 'update_calling', calling: [...hostCallingSet], done: [qid] });
 }
 
 function clearDoneOrders() {
@@ -3449,24 +3457,20 @@ function handleP2PMessage(data) {
 
     // ── 親機が受信 ──
     case 'mark_done':
+      // 子機からの提供済み通知 → markOrderDone内で呼び出し解除・ブロードキャストまで一括処理
       if (p2pRole === 'host') {
         markOrderDone(data.qid);
         showToast(`注文 #${data.qid} が提供済みになりました`);
-        // 呼び出し状態から除去して全子機へ再送
-        hostCallingSet.delete(data.qid);
-        renderHostCallingBar();
-        renderQueue();
-        p2pBroadcast({ type: 'update_calling', calling: [...hostCallingSet], done: [data.qid] });
       }
       break;
 
     case 'calling':
       // 呼び出し子機→親機: 呼び出し状態を同期して全子機へ転送
       if (p2pRole === 'host') {
-        if (data.calling) hostCallingSet.add(data.qid);
-        else              hostCallingSet.delete(data.qid);
+        if (data.calling) hostCallingSet.add(Number(data.qid));
+        else              hostCallingSet.delete(Number(data.qid));
         renderHostCallingBar();
-        renderQueue(); // キューカードの呼び出し状態を更新
+        renderQueue();
         p2pBroadcast({ type: 'update_calling', calling: [...hostCallingSet] });
       }
       break;
@@ -3495,27 +3499,34 @@ function handleP2PMessage(data) {
       break;
 
     // ── 子機が受信: 提供済み更新 ──
-    case 'order_done':
+    case 'order_done': {
+      const dqid = Number(data.qid);
       if (p2pRole === 'caller') {
-        const o = callerOrders.find(x => x.qid === data.qid);
-        if (o) { o.done = true; callingSet.delete(data.qid); renderCaller(); updateCallerBadge(); }
+        const o = callerOrders.find(x => x.qid === dqid);
+        if (o) { o.done = true; callingSet.delete(dqid); renderCaller(); updateCallerBadge(); }
       } else if (p2pRole === 'display') {
-        // 表示は update_calling で管理するため不要
+        // update_callingで管理
       } else {
-        const o = kitchenOrders.find(x => x.qid === data.qid);
+        const o = kitchenOrders.find(x => x.qid === dqid);
         if (o) { o.done = true; renderKitchen(); updateKitchenBadge(); }
       }
       break;
+    }
 
     // ── 子機が受信: 呼び出し番号の更新（display / caller） ──
     case 'update_calling':
       if (p2pRole === 'display') {
-        renderDisplay(data.calling || [], data.done || []);
+        renderDisplay((data.calling || []).map(Number), (data.done || []).map(Number));
       } else if (p2pRole === 'caller') {
-        // callingSetをホストの状態に同期
         callingSet.clear();
-        (data.calling || []).forEach(q => callingSet.add(q));
+        (data.calling || []).forEach(q => callingSet.add(Number(q)));
+        // doneで来た番号はcallerOrdersにも反映
+        (data.done || []).forEach(q => {
+          const o = callerOrders.find(x => x.qid === Number(q));
+          if (o && !o.done) { o.done = true; }
+        });
         renderCaller();
+        updateCallerBadge();
       }
       break;
   }
@@ -3596,6 +3607,7 @@ function renderHostCallingBar() {
 
 // ── ホスト側: 呼び出しトグル ──
 function hostToggleCall(qid) {
+  qid = Number(qid);
   if (hostCallingSet.has(qid)) { hostStopCall(qid); return; }
   hostCallingSet.add(qid);
   renderHostCallingBar();
@@ -3604,6 +3616,7 @@ function hostToggleCall(qid) {
   if (navigator.vibrate) navigator.vibrate(80);
 }
 function hostStopCall(qid) {
+  qid = Number(qid);
   hostCallingSet.delete(qid);
   renderHostCallingBar();
   renderQueue();
@@ -3919,6 +3932,7 @@ function renderCaller() {
 
 // 呼び出しトグル
 function callerToggleCall(qid) {
+  qid = Number(qid);
   if (callingSet.has(qid)) { callerStopCall(qid); return; }
   callingSet.add(qid);
   if (navigator.vibrate) navigator.vibrate(80);
@@ -3926,6 +3940,7 @@ function callerToggleCall(qid) {
   p2pSend({ type: 'calling', qid, calling: true });
 }
 function callerStopCall(qid) {
+  qid = Number(qid);
   callingSet.delete(qid);
   renderCaller();
   p2pSend({ type: 'calling', qid, calling: false });
@@ -3933,12 +3948,14 @@ function callerStopCall(qid) {
 
 // 提供済み（呼び出し中でなくても操作可）
 function callerMarkDone(qid) {
+  qid = Number(qid);
   const o = callerOrders.find(x => x.qid === qid);
   if (!o) return;
   o.done = true;
   callingSet.delete(qid);
   renderCaller();
   updateCallerBadge();
+  // 呼び出し解除を先に送ってから提供済みを送る
   p2pSend({ type: 'calling', qid, calling: false });
   p2pSend({ type: 'mark_done', qid });
   showToast(`注文 #${qid} を提供済みにしました`);
