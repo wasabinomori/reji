@@ -254,18 +254,39 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
 
 /* ── Report ── */
 #report-view{flex-direction:column;}
-#report-scroll{flex:1;overflow-y:auto;padding:16px;}
-.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px;}
-.stat-card{background:var(--surface);border-radius:var(--radius);padding:14px;}
-.stat-label{font-size:12px;color:var(--text3);margin-bottom:5px;}
-.stat-value{font-size:22px;font-weight:600;}
-.chart-card{background:var(--surface);border-radius:var(--radius);padding:16px;margin-bottom:16px;}
-.chart-label{font-size:13px;color:var(--text3);margin-bottom:12px;}
-#bar-chart{display:flex;align-items:flex-end;gap:6px;height:90px;}
-.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
-.bar{width:100%;background:var(--primary);border-radius:4px 4px 0 0;opacity:.85;}
-.bar-lbl{font-size:10px;color:var(--text3);}
-.history-card{background:var(--surface);border-radius:var(--radius);overflow:hidden;}
+#report-header{background:var(--surface);border-bottom:0.5px solid var(--sep2);flex-shrink:0;}
+#report-period-tabs{display:flex;gap:4px;padding:10px 14px 0;overflow-x:auto;scrollbar-width:none;}
+#report-period-tabs::-webkit-scrollbar{display:none;}
+.rp-tab{padding:7px 18px;border-radius:8px 8px 0 0;border:none;background:transparent;font-size:13px;font-weight:500;color:var(--text3);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;}
+.rp-tab.active{color:var(--primary);border-bottom-color:var(--primary);background:var(--primary-light);}
+#report-range-bar{display:flex;align-items:center;gap:8px;padding:10px 14px;border-top:0.5px solid var(--sep);}
+#report-range-label{flex:1;font-size:14px;font-weight:600;text-align:center;}
+.rr-nav{width:32px;height:32px;border:0.5px solid var(--sep2);border-radius:var(--radius-sm);background:var(--surface2);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text);flex-shrink:0;}
+#report-scroll{flex:1;overflow-y:auto;padding:14px;}
+.report-kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px;}
+.report-kpi{background:var(--surface);border-radius:var(--radius);padding:14px;}
+.report-kpi-label{font-size:11px;color:var(--text3);margin-bottom:4px;}
+.report-kpi-value{font-size:22px;font-weight:600;}
+.report-kpi-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+.report-section{background:var(--surface);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;}
+.report-section-title{font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;}
+/* バーチャート */
+.rpt-chart{display:flex;align-items:flex-end;gap:4px;height:100px;margin-bottom:6px;}
+.rpt-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0;}
+.rpt-bar{width:100%;background:var(--primary);border-radius:3px 3px 0 0;opacity:.85;min-height:2px;transition:height .3s;}
+.rpt-bar.today{background:#FF9500;}
+.rpt-bar-lbl{font-size:9px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;text-align:center;}
+.rpt-bar-val{font-size:9px;color:var(--text3);text-align:center;}
+/* 支払方法・商品 */
+.rpt-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:0.5px solid var(--sep);}
+.rpt-row:last-child{border-bottom:none;}
+.rpt-row-label{flex:1;font-size:13px;}
+.rpt-row-bar-wrap{width:80px;height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;}
+.rpt-row-bar{height:100%;background:var(--primary);border-radius:3px;}
+.rpt-row-val{font-size:13px;font-weight:600;min-width:70px;text-align:right;}
+.rpt-row-sub{font-size:11px;color:var(--text3);}
+/* 取引履歴 */
+.history-card{background:var(--surface);border-radius:var(--radius);overflow:hidden;margin-bottom:12px;}
 .history-head{display:flex;padding:10px 14px;background:var(--surface2);border-bottom:0.5px solid var(--sep);}
 .hh-time,.tx-time{width:54px;font-size:12px;}
 .hh-items,.tx-items{width:46px;font-size:12px;}
@@ -274,6 +295,12 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
 .tx-row{display:flex;align-items:center;padding:10px 14px;border-bottom:0.5px solid var(--sep);}
 .tx-time,.tx-items{color:var(--text3);}
 .tx-total{font-weight:600;}
+/* Drive保存ボタン */
+#report-drive-save{display:flex;align-items:center;gap:6px;padding:8px 14px;border:0.5px solid var(--sep2);border-radius:var(--radius-sm);background:var(--surface2);font-size:12px;font-weight:500;cursor:pointer;color:var(--text);white-space:nowrap;}
+.report-empty{padding:40px;text-align:center;color:var(--text3);font-size:13px;}
+/* 旧CSS互換 */
+.stats-grid{display:none;}
+.chart-card,.stat-card{display:none;}
 
 /* ── Payment modal ── */
 #modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;justify-content:center;z-index:100;backdrop-filter:blur(4px);}
@@ -580,6 +607,130 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
 #p2p-indicator.connected #p2p-dot{background:#30D158;}
 #p2p-indicator.waiting #p2p-dot{background:#FF9F0A;animation:pulse 1.2s ease-in-out infinite;}
 #p2p-indicator.disconnected #p2p-dot{background:var(--text3);}
+
+/* ══════════════════════════════════════════════
+   スマホ・縦画面対応
+   ～ 640px : 縦スマホ想定
+   641px〜   : タブレット横 / デスクトップ（変更なし）
+══════════════════════════════════════════════ */
+@media (max-width: 640px) {
+
+  /* ── Topbar ── */
+  #topbar{padding:calc(var(--safe-top) + 8px) 10px 8px;gap:6px;}
+  #topbar-title{display:none;}                    /* タイトル非表示 */
+  .tab-btn{padding:6px 9px;font-size:12px;}
+  #sync-label{display:none;}                      /* "Drive"文字非表示 */
+  #p2p-label{display:none;}                       /* "接続"文字非表示 */
+  #sync-btn{padding:7px 9px;}
+  #p2p-indicator{padding:6px 9px;}
+
+  /* ── POS: 縦1列レイアウト ── */
+  #pos-view{flex-direction:column;}
+  #pos-left{flex:1;overflow:hidden;}
+  #products-grid{grid-template-columns:repeat(3,1fr);gap:8px;}
+  .product-card{padding:10px 6px;gap:4px;}
+  .product-icon{font-size:26px;}
+  .product-name{font-size:10px;}
+  .product-price{font-size:13px;}
+
+  /* ── カート: 画面下部のドロワー ── */
+  #cart{
+    position:fixed;bottom:0;left:0;right:0;
+    width:100%;
+    height:auto;
+    max-height:70vh;
+    border-left:none;
+    border-top:0.5px solid var(--sep2);
+    border-radius:20px 20px 0 0;
+    box-shadow:0 -4px 24px rgba(0,0,0,.15);
+    z-index:50;
+    transform:translateY(calc(100% - 58px)); /* フッターだけ見せる */
+    transition:transform .3s cubic-bezier(.4,0,.2,1);
+    overflow:hidden;
+  }
+  #cart.open{transform:translateY(0);}
+  /* ドラッグハンドル */
+  #cart-header::before{
+    content:'';display:block;width:36px;height:4px;
+    border-radius:2px;background:var(--sep2);
+    position:absolute;top:8px;left:50%;transform:translateX(-50%);
+  }
+  #cart-header{position:relative;cursor:pointer;padding:18px 16px 10px;}
+  #cart-items{max-height:calc(70vh - 200px);overflow-y:auto;}
+
+  /* カートが開いているとき商品グリッドをパディング */
+  #pos-left{padding-bottom:58px;}
+  #cart.open ~ * #pos-left,
+  body.cart-open #pos-left{padding-bottom:0;}
+
+  /* ── 商品グリッドカート開放時のスペース ── */
+  #products-scroll{padding-bottom:4px;}
+
+  /* ── カートバッジ（閉じているとき点数表示） ── */
+  #cart-badge-count{
+    display:inline-flex;align-items:center;justify-content:center;
+    min-width:20px;height:20px;border-radius:10px;
+    background:#FF3B30;color:#fff;font-size:11px;font-weight:700;
+    padding:0 5px;margin-left:6px;
+  }
+  #cart-badge-count:empty{display:none;}
+
+  /* ── 支払ボタンをカートヘッダーに常時表示 ── */
+  #cart-pay-quick{
+    display:flex;align-items:center;justify-content:center;
+    gap:8px;margin-left:auto;
+    padding:8px 14px;background:var(--primary);color:#fff;
+    border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;
+  }
+  #cart-pay-quick:disabled{background:var(--surface2);color:var(--text3);}
+
+  /* ── Queue ── */
+  .queue-card-header{padding:10px 12px;}
+  .queue-items{padding:6px 12px 8px;}
+
+  /* ── Products view ── */
+  .prod-actions .toggle-btn{display:none;} /* 編集ボタンのみ残す */
+  .prod-row-price{font-size:13px;}
+
+  /* ── Report ── */
+  .report-kpi-grid{grid-template-columns:repeat(2,1fr);}
+  #report-range-bar{padding:8px 10px;}
+  .rp-tab{padding:6px 12px;font-size:12px;}
+
+  /* ── Kitchen ── */
+  .kitchen-item-name{font-size:14px;}
+  .kitchen-item-qty{font-size:16px;}
+  .kitchen-serve-btn{padding:16px;font-size:16px;}
+
+  /* ── モーダル ── */
+  #payment-columns{flex-direction:column;}
+  #payment-col-left{width:100%;}
+  #payment-col-mid{width:100%;}
+  #payment-col-right{width:100%;}
+
+  /* ── P2Pモーダル ── */
+  #p2p-modal{padding:22px 18px;}
+  .p2p-role-icon{font-size:28px;}
+
+  /* ── Queue summary bar ── */
+  #queue-summary{padding:8px 12px;}
+  .qs-chip{padding:4px 10px;}
+
+  /* ── Sales banner ── */
+  #sales-banner{padding:7px 12px;font-size:12px;}
+
+  /* ── レジ締めモーダル ── */
+  .se-kpi-grid{grid-template-columns:repeat(3,1fr);}
+  .rc-denom-grid{grid-template-columns:repeat(2,1fr);}
+}
+
+/* 極小画面（〜375px）追加調整 */
+@media (max-width: 375px) {
+  .tab-btn{padding:5px 7px;font-size:11px;}
+  #products-grid{grid-template-columns:repeat(2,1fr);}
+  .product-icon{font-size:24px;}
+  .rp-tab{padding:5px 9px;font-size:11px;}
+}
 </style>
 </head>
 <body>
@@ -632,9 +783,11 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
       <div id="products-scroll"><div id="products-grid"></div></div>
     </div>
     <div id="cart">
-      <div id="cart-header">
+      <div id="cart-header" onclick="toggleCartDrawer()">
         <span id="cart-title">カート</span>
-        <button id="cart-clear" onclick="clearCart()">クリア</button>
+        <span id="cart-badge-count"></span>
+        <button id="cart-pay-quick" disabled onclick="event.stopPropagation();openPayment()" style="display:none">お会計</button>
+        <button id="cart-clear" onclick="event.stopPropagation();clearCart()">クリア</button>
       </div>
       <div id="cart-items">
         <div id="cart-empty"><div id="cart-empty-icon">🛒</div>商品をタップして追加</div>
@@ -701,13 +854,27 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
 
   <!-- Report -->
   <div class="view" id="report-view">
+    <div id="report-header">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px 0;">
+        <div id="report-period-tabs">
+          <button class="rp-tab active" onclick="setReportPeriod('day')">日</button>
+          <button class="rp-tab" onclick="setReportPeriod('week')">週</button>
+          <button class="rp-tab" onclick="setReportPeriod('month')">月</button>
+          <button class="rp-tab" onclick="setReportPeriod('year')">年</button>
+        </div>
+        <button id="report-drive-save" onclick="saveDailyToDrive()">☁️ 日次保存</button>
+      </div>
+      <div id="report-range-bar">
+        <button class="rr-nav" onclick="shiftReport(-1)">‹</button>
+        <div id="report-range-label">—</div>
+        <button class="rr-nav" onclick="shiftReport(1)">›</button>
+      </div>
+    </div>
     <div id="report-scroll">
       <div class="stats-grid" id="stats-grid"></div>
-      <div class="chart-card">
-        <div class="chart-label">時間帯別売上（本日）</div>
-        <div id="bar-chart"></div>
-      </div>
-      <div class="history-card">
+      <div id="report-body"></div>
+      <div class="chart-card"><div id="bar-chart"></div></div>
+      <div class="history-card" id="history-card-wrap">
         <div class="history-head">
           <span class="hh-time">時刻</span><span class="hh-items">品数</span>
           <span class="hh-method">支払方法</span><span class="hh-total">合計</span>
@@ -1595,9 +1762,25 @@ function changeQty(id, d) {
   if (cart[id] <= 0) delete cart[id];
   renderCart();
 }
+function isSmallScreen() { return window.innerWidth <= 640; }
+
+function toggleCartDrawer() {
+  if (!isSmallScreen()) return;
+  const cart = document.getElementById('cart');
+  cart.classList.toggle('open');
+}
+function openCartDrawer() {
+  if (!isSmallScreen()) return;
+  document.getElementById('cart').classList.add('open');
+}
+function closeCartDrawer() {
+  document.getElementById('cart').classList.remove('open');
+}
+
 function clearCart() {
   cart = {}; discPct = 0;
   document.getElementById('discount-input').value = '';
+  closeCartDrawer();
   renderCart();
 }
 function renderCart() {
@@ -1605,7 +1788,9 @@ function renderCart() {
   const el = document.getElementById('cart-items');
   if (!ids.length) {
     el.innerHTML = `<div id="cart-empty"><div id="cart-empty-icon">🛒</div>商品をタップして追加</div>`;
-    updateTotals(); return;
+    updateTotals();
+    updateCartMobile(0);
+    return;
   }
   el.innerHTML = ids.map(id => {
     const p = products.find(x => x.id == id); if (!p) return '';
@@ -1621,6 +1806,28 @@ function renderCart() {
     </div>`;
   }).join('');
   updateTotals();
+  const totalQty = Object.values(cart).reduce((a,b)=>a+b, 0);
+  updateCartMobile(totalQty);
+}
+
+function updateCartMobile(qty) {
+  // バッジ
+  const badge = document.getElementById('cart-badge-count');
+  if (badge) badge.textContent = qty > 0 ? qty : '';
+  // クイック支払いボタン（スマホ時のみ表示）
+  const qpay = document.getElementById('cart-pay-quick');
+  if (qpay) {
+    qpay.style.display = isSmallScreen() ? 'flex' : 'none';
+    qpay.disabled = !salesOpen || qty === 0;
+    if (qty > 0) {
+      const { total } = calcTotals();
+      qpay.textContent = `お会計 ${fmt(total)}`;
+    } else {
+      qpay.textContent = 'お会計';
+    }
+  }
+  // カートに商品が入ったら自動で少しだけ開く（スマホ）
+  if (isSmallScreen() && qty > 0) openCartDrawer();
 }function applyDiscount() {
   const v = parseFloat(document.getElementById('discount-input').value);
   discPct = (isNaN(v) || v < 0 || v > 100) ? 0 : v;
@@ -1971,6 +2178,8 @@ function confirmPayment() {
   updateQueueBadge();
   // P2P: キッチンへ新規注文を送信
   p2pBroadcastNewOrder();
+  // Drive: 日次データを自動保存（接続中のみ）
+  if (driveToken) saveDailyToDrive();
 
   // 成功画面
   const changeRow = document.getElementById('success-change-row');
@@ -1985,6 +2194,7 @@ function confirmPayment() {
   document.getElementById('success-view').classList.add('show');
   cart = {}; discPct = 0;
   document.getElementById('discount-input').value = '';
+  closeCartDrawer();
   renderCart();
 }
 
@@ -2348,40 +2558,275 @@ function resetAllProducts() {
   }, '戻す');
 }
 // ══════════════════════════════════════════════
-function renderReport() {
-  const now = new Date();
-  const todays = transactions.filter(t => {
-    const d = new Date(t.date);
-    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+// ══════════════════════════════════════════════
+// REPORT（期間分析）
+// ══════════════════════════════════════════════
+let reportPeriod = 'day';  // 'day'|'week'|'month'|'year'
+let reportOffset = 0;      // 0=当期、-1=前期、+1=翌期
+let driveCache = {};       // { 'YYYY-MM-DD': { transactions:[], products:[] } }
+
+// ── 期間・ナビ ──
+function setReportPeriod(p) {
+  reportPeriod = p; reportOffset = 0;
+  document.querySelectorAll('.rp-tab').forEach(b => {
+    b.classList.toggle('active', b.textContent === {day:'日',week:'週',month:'月',year:'年'}[p]);
   });
-  const total = todays.reduce((a, b) => a + b.total, 0);
-  const avg = todays.length ? Math.round(total / todays.length) : 0;
-  const pendingQueue = orderQueue.filter(o => !o.done).length;
-  document.getElementById('stats-grid').innerHTML = [
-    { l: '本日の売上', v: fmt(total) },
-    { l: '取引件数', v: todays.length + '件' },
-    { l: '客単価', v: fmt(avg) },
-    { l: '注文待ち', v: pendingQueue + '件' },
-  ].map(s => `<div class="stat-card"><div class="stat-label">${s.l}</div><div class="stat-value">${s.v}</div></div>`).join('');
-  const hourly = {};
-  todays.forEach(t => { const h = new Date(t.date).getHours(); hourly[h] = (hourly[h] || 0) + t.total; });
-  const slots = [10,11,12,13,14,15,16];
-  const maxH = Math.max(...slots.map(h => hourly[h] || 0), 1);
-  document.getElementById('bar-chart').innerHTML = slots.map(h =>
-    `<div class="bar-wrap">
-      <div class="bar" style="height:${Math.round((hourly[h]||0)/maxH*80)}px"></div>
-      <div class="bar-lbl">${h}時</div>
-    </div>`
-  ).join('');
-  document.getElementById('tx-list').innerHTML = transactions.slice(0, 20).map(t =>
-    `<div class="tx-row">
-      <span class="tx-time">${t.time}</span>
-      <span class="tx-items">${t.items}点</span>
-      <span class="tx-method">${t.method}</span>
-      <span class="tx-total">${fmt(t.total)}</span>
-    </div>`
-  ).join('') || '<div style="padding:24px;text-align:center;color:var(--text3);font-size:13px">まだ取引がありません</div>';
+  renderReport();
 }
+function shiftReport(d) { reportOffset += d; renderReport(); }
+
+// 期間の開始・終了日を返す（Date）
+function getReportRange() {
+  const now = new Date();
+  let start, end;
+  if (reportPeriod === 'day') {
+    start = new Date(now); start.setDate(start.getDate() + reportOffset);
+    start.setHours(0,0,0,0);
+    end = new Date(start); end.setDate(end.getDate() + 1);
+  } else if (reportPeriod === 'week') {
+    const dow = now.getDay(); // 0=日
+    start = new Date(now); start.setDate(now.getDate() - dow + reportOffset * 7);
+    start.setHours(0,0,0,0);
+    end = new Date(start); end.setDate(start.getDate() + 7);
+  } else if (reportPeriod === 'month') {
+    start = new Date(now.getFullYear(), now.getMonth() + reportOffset, 1);
+    end   = new Date(now.getFullYear(), now.getMonth() + reportOffset + 1, 1);
+  } else { // year
+    start = new Date(now.getFullYear() + reportOffset, 0, 1);
+    end   = new Date(now.getFullYear() + reportOffset + 1, 0, 1);
+  }
+  return { start, end };
+}
+
+function reportRangeLabel() {
+  const { start, end } = getReportRange();
+  const pad = n => String(n).padStart(2,'0');
+  const ymd = d => `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())}`;
+  if (reportPeriod === 'day')   return ymd(start);
+  if (reportPeriod === 'week')  return `${ymd(start)} 〜 ${ymd(new Date(end - 86400000))}`;
+  if (reportPeriod === 'month') return `${start.getFullYear()}年${start.getMonth()+1}月`;
+  return `${start.getFullYear()}年`;
+}
+
+// ── Drive 日次ファイル操作 ──
+function dateKey(d) {
+  const pad = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+
+async function saveDailyToDrive() {
+  if (!driveToken) { showToast('Driveに接続してください'); return; }
+  const btn = document.getElementById('report-drive-save');
+  btn.textContent = '保存中...'; btn.disabled = true;
+  try {
+    const { resultsId } = await ensureFolderStructure();
+    const today = dateKey(new Date());
+    const todays = transactions.filter(t => t.date && t.date.startsWith(today));
+    const prodTally = {};
+    orderQueue.filter(o => o.date && o.date.startsWith(today)).forEach(o =>
+      o.items.forEach(it => { prodTally[it.id] = (prodTally[it.id]||{icon:it.icon,name:it.name,qty:0,revenue:0}); prodTally[it.id].qty+=it.qty; prodTally[it.id].revenue+=it.qty*it.price; })
+    );
+    const payload = {
+      date: today,
+      transactions: todays,
+      products: prodTally,
+      summary: {
+        total: todays.reduce((a,b)=>a+b.total,0),
+        count: todays.length,
+        byMethod: todays.reduce((m,t)=>{ m[t.method]=(m[t.method]||0)+t.total; return m; }, {}),
+      },
+      savedAt: new Date().toISOString(),
+    };
+    await upsertJson(`${today}.json`, resultsId, payload);
+    driveCache[today] = payload;
+    showToast(`${today} の日次データを保存しました ☁️`);
+  } catch(e) { showToast('保存に失敗しました'); }
+  btn.textContent = '☁️ 日次保存'; btn.disabled = false;
+}
+
+// Drive から日付範囲のデータを読み込む
+async function loadDriveRange(dateKeys) {
+  if (!driveToken) return;
+  const missing = dateKeys.filter(k => !driveCache[k]);
+  if (!missing.length) return;
+  try {
+    const { resultsId } = await ensureFolderStructure();
+    await Promise.all(missing.map(async k => {
+      const d = await readJson(`${k}.json`, resultsId);
+      if (d) driveCache[k] = d;
+    }));
+  } catch(e) {}
+}
+
+// 期間内の全日付キーを列挙
+function getDateKeysInRange() {
+  const { start, end } = getReportRange();
+  const keys = [];
+  const cur = new Date(start);
+  while (cur < end) { keys.push(dateKey(cur)); cur.setDate(cur.getDate()+1); }
+  return keys;
+}
+
+// ── メインのrenderReport ──
+async function renderReport() {
+  document.getElementById('report-range-label').textContent = reportRangeLabel();
+
+  // 今日のデータはlocalStorageから、過去はDriveから補完
+  const keys = getDateKeysInRange();
+  const todayKey = dateKey(new Date());
+
+  // Drive読み込み（今日以外）
+  const pastKeys = keys.filter(k => k !== todayKey);
+  if (pastKeys.length) await loadDriveRange(pastKeys);
+
+  // 全期間のtransactionsを収集
+  let allTx = [];
+  keys.forEach(k => {
+    if (k === todayKey) {
+      // 当日はメモリのデータを使う
+      allTx.push(...transactions.filter(t => t.date && t.date.startsWith(k)));
+    } else if (driveCache[k]) {
+      allTx.push(...(driveCache[k].transactions || []));
+    }
+  });
+
+  // 商品別集計（orderQueue + driveCache）
+  const prodTally = {};
+  // 当日分
+  const todayOrders = orderQueue.filter(o => o.date && o.date.startsWith(todayKey));
+  todayOrders.forEach(o => o.items.forEach(it => {
+    if (!prodTally[it.id]) prodTally[it.id] = { icon:it.icon, name:it.name, qty:0, revenue:0 };
+    prodTally[it.id].qty += it.qty; prodTally[it.id].revenue += it.qty * it.price;
+  }));
+  // Drive分
+  pastKeys.forEach(k => {
+    const p = driveCache[k]?.products || {};
+    Object.entries(p).forEach(([id, v]) => {
+      if (!prodTally[id]) prodTally[id] = { icon:v.icon, name:v.name, qty:0, revenue:0 };
+      prodTally[id].qty += v.qty; prodTally[id].revenue += v.revenue;
+    });
+  });
+
+  const total = allTx.reduce((a,b)=>a+b.total, 0);
+  const count = allTx.length;
+  const avg   = count ? Math.round(total / count) : 0;
+  const byMethod = allTx.reduce((m,t)=>{ m[t.method]=(m[t.method]||0)+t.total; return m; }, {});
+
+  // KPI
+  document.getElementById('report-body').innerHTML = `
+    <div class="report-kpi-grid">
+      <div class="report-kpi"><div class="report-kpi-label">売上合計</div><div class="report-kpi-value">${fmt(total)}</div></div>
+      <div class="report-kpi"><div class="report-kpi-label">取引件数</div><div class="report-kpi-value">${count}件</div></div>
+      <div class="report-kpi"><div class="report-kpi-label">客単価</div><div class="report-kpi-value">${fmt(avg)}</div></div>
+      <div class="report-kpi"><div class="report-kpi-label">営業日数</div><div class="report-kpi-value">${keys.filter(k=>allTx.some(t=>t.date&&t.date.startsWith(k))).length}日</div></div>
+    </div>
+    ${renderReportChart(keys, allTx)}
+    ${renderReportMethods(byMethod, total)}
+    ${renderReportProducts(prodTally)}
+  `;
+
+  // 取引履歴（日表示時のみ詳細）
+  const histWrap = document.getElementById('history-card-wrap');
+  if (reportPeriod === 'day') {
+    histWrap.style.display = '';
+    document.getElementById('tx-list').innerHTML = allTx.length
+      ? allTx.slice(0,30).map(t =>
+          `<div class="tx-row"><span class="tx-time">${t.time}</span><span class="tx-items">${t.items}点</span><span class="tx-method">${t.method}</span><span class="tx-total">${fmt(t.total)}</span></div>`
+        ).join('')
+      : '<div style="padding:24px;text-align:center;color:var(--text3);font-size:13px">この期間の取引はありません</div>';
+  } else {
+    histWrap.style.display = 'none';
+  }
+}
+
+// バーチャート（期間に応じてスロットを変える）
+function renderReportChart(keys, allTx) {
+  let slots = [];
+  if (reportPeriod === 'day') {
+    // 時間帯別（6〜20時）
+    for (let h = 6; h <= 20; h++) slots.push({ key: h, label: `${h}時` });
+    const hourly = {};
+    allTx.forEach(t => { const h = new Date(t.date).getHours(); hourly[h] = (hourly[h]||0)+t.total; });
+    const todayH = new Date().getHours();
+    const maxV = Math.max(...slots.map(s=>hourly[s.key]||0), 1);
+    const bars = slots.map(s => {
+      const v = hourly[s.key]||0;
+      const h = Math.round(v/maxV*90);
+      const isNow = s.key === todayH;
+      return `<div class="rpt-bar-wrap"><div class="rpt-bar${isNow?' today':''}" style="height:${h}px"></div><div class="rpt-bar-lbl">${s.key}</div></div>`;
+    }).join('');
+    return `<div class="report-section"><div class="report-section-title">時間帯別売上</div><div class="rpt-chart">${bars}</div></div>`;
+  }
+  if (reportPeriod === 'week') {
+    const dayNames = ['日','月','火','水','木','金','土'];
+    const daily = {};
+    allTx.forEach(t => { const k = dateKey(new Date(t.date)); daily[k]=(daily[k]||0)+t.total; });
+    const maxV = Math.max(...keys.map(k=>daily[k]||0), 1);
+    const todayK = dateKey(new Date());
+    const bars = keys.map(k => {
+      const d = new Date(k); const v = daily[k]||0;
+      const h = Math.round(v/maxV*90);
+      return `<div class="rpt-bar-wrap"><div class="rpt-bar${k===todayK?' today':''}" style="height:${h}px"></div><div class="rpt-bar-lbl">${dayNames[d.getDay()]}</div></div>`;
+    }).join('');
+    return `<div class="report-section"><div class="report-section-title">曜日別売上</div><div class="rpt-chart">${bars}</div></div>`;
+  }
+  if (reportPeriod === 'month') {
+    const daily = {};
+    allTx.forEach(t => { const k = dateKey(new Date(t.date)); daily[k]=(daily[k]||0)+t.total; });
+    const maxV = Math.max(...keys.map(k=>daily[k]||0), 1);
+    const todayK = dateKey(new Date());
+    const bars = keys.map(k => {
+      const d = new Date(k); const v = daily[k]||0;
+      const h = Math.round(v/maxV*90);
+      return `<div class="rpt-bar-wrap"><div class="rpt-bar${k===todayK?' today':''}" style="height:${h}px"></div><div class="rpt-bar-lbl">${d.getDate()}</div></div>`;
+    }).join('');
+    return `<div class="report-section"><div class="report-section-title">日別売上</div><div class="rpt-chart">${bars}</div></div>`;
+  }
+  // year: 月別
+  const monthly = {};
+  allTx.forEach(t => { const d = new Date(t.date); const mk = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; monthly[mk]=(monthly[mk]||0)+t.total; });
+  const { start } = getReportRange();
+  const mKeys = Array.from({length:12},(_,i) => `${start.getFullYear()}-${String(i+1).padStart(2,'0')}`);
+  const maxV = Math.max(...mKeys.map(k=>monthly[k]||0), 1);
+  const nowMK = `${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}`;
+  const bars = mKeys.map(k => {
+    const v = monthly[k]||0; const h = Math.round(v/maxV*90);
+    return `<div class="rpt-bar-wrap"><div class="rpt-bar${k===nowMK?' today':''}" style="height:${h}px"></div><div class="rpt-bar-lbl">${parseInt(k.split('-')[1])}月</div></div>`;
+  }).join('');
+  return `<div class="report-section"><div class="report-section-title">月別売上</div><div class="rpt-chart">${bars}</div></div>`;
+}
+
+function renderReportMethods(byMethod, total) {
+  const entries = Object.entries(byMethod).sort((a,b)=>b[1]-a[1]);
+  if (!entries.length) return '';
+  const maxV = Math.max(...entries.map(e=>e[1]), 1);
+  const rows = entries.map(([m,v]) => {
+    const pct = Math.round(v/total*100);
+    const barW = Math.round(v/maxV*100);
+    return `<div class="rpt-row">
+      <div class="rpt-row-label">${m}</div>
+      <div class="rpt-row-bar-wrap"><div class="rpt-row-bar" style="width:${barW}%"></div></div>
+      <div class="rpt-row-val">${fmt(v)}<br><span class="rpt-row-sub">${pct}%</span></div>
+    </div>`;
+  }).join('');
+  return `<div class="report-section"><div class="report-section-title">支払方法別</div>${rows}</div>`;
+}
+
+function renderReportProducts(prodTally) {
+  const entries = Object.entries(prodTally).sort((a,b)=>b[1].revenue-a[1].revenue);
+  if (!entries.length) return '';
+  const maxV = Math.max(...entries.map(e=>e[1].revenue), 1);
+  const rows = entries.slice(0,10).map(([,v]) => {
+    const barW = Math.round(v.revenue/maxV*100);
+    return `<div class="rpt-row">
+      <div class="rpt-row-label">${v.icon} ${v.name}</div>
+      <div class="rpt-row-bar-wrap"><div class="rpt-row-bar" style="width:${barW}%"></div></div>
+      <div class="rpt-row-val">${fmt(v.revenue)}<br><span class="rpt-row-sub">${v.qty}点</span></div>
+    </div>`;
+  }).join('');
+  return `<div class="report-section"><div class="report-section-title">商品別（上位10）</div>${rows}</div>`;
+}
+
 
 // ══════════════════════════════════════════════
 // REGISTER CLOSE（レジ締め）
