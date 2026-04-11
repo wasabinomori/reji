@@ -550,9 +550,9 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
 .p2p-role-desc{font-size:11px;color:var(--text3);text-align:center;line-height:1.4;}
 #p2p-setup-area{display:flex;flex-direction:column;gap:14px;}
 .p2p-label{font-size:12px;font-weight:600;color:var(--text3);}
-#p2p-room-id-display{background:var(--surface2);border-radius:var(--radius-sm);padding:14px;text-align:center;}
-#p2p-room-id-display .p2p-id-val{font-size:28px;font-weight:700;letter-spacing:4px;color:var(--primary);font-family:monospace;}
-#p2p-room-id-display .p2p-id-hint{font-size:12px;color:var(--text3);margin-top:4px;}
+#p2p-room-id-display{background:var(--primary-light);border:1.5px solid var(--primary);border-radius:var(--radius);padding:18px 14px;text-align:center;}
+#p2p-room-id-display .p2p-id-val{font-size:38px;font-weight:700;letter-spacing:8px;color:var(--primary);font-family:monospace;line-height:1;}
+#p2p-room-id-display .p2p-id-hint{font-size:12px;color:var(--text3);margin-top:8px;}
 #p2p-join-input{width:100%;padding:12px 14px;border:1.5px solid var(--sep2);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);font-size:22px;font-weight:700;text-align:center;letter-spacing:4px;font-family:monospace;outline:none;text-transform:uppercase;}
 #p2p-join-input:focus{border-color:var(--primary);}
 .p2p-connect-btn{width:100%;padding:14px;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);font-size:16px;font-weight:600;cursor:pointer;}
@@ -619,14 +619,24 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
 #display-conn-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.3);}
 #display-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:20px;}
 #display-waiting-label{font-size:13px;font-weight:500;color:rgba(255,255,255,.4);letter-spacing:.5px;text-transform:uppercase;}
-#display-nums-wrap{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;align-items:center;}
+#display-nums-wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:center;width:100%;}
 .display-num{
-  width:min(22vw,130px);height:min(22vw,130px);
+  width:min(28vw,160px);height:min(28vw,160px);
   border-radius:20px;
   background:var(--primary);
   display:flex;align-items:center;justify-content:center;
-  font-size:min(12vw,72px);font-weight:700;color:#fff;
+  font-size:min(16vw,90px);font-weight:700;color:#fff;
   animation:displayPop .35s cubic-bezier(.34,1.56,.64,1);
+  flex-shrink:0;
+}
+/* 複数番号時はサイズを縮小 */
+#display-nums-wrap.multi .display-num{
+  width:min(20vw,110px);height:min(20vw,110px);
+  font-size:min(11vw,60px);
+}
+#display-nums-wrap.many .display-num{
+  width:min(15vw,84px);height:min(15vw,84px);
+  font-size:min(8vw,44px);border-radius:14px;
 }
 @keyframes displayPop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
 #display-empty{font-size:min(5vw,22px);color:rgba(255,255,255,.2);font-weight:500;}
@@ -640,11 +650,11 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
 }
 #display-done-label{font-size:12px;color:rgba(255,255,255,.25);text-align:center;margin-top:4px;}
 
-/* ── 親機キュー: 呼び出し操作ボタン ── */
-.queue-call-btn{width:100%;padding:9px;background:var(--primary-light);color:var(--primary);border:none;font-size:13px;font-weight:600;cursor:pointer;border-top:0.5px solid var(--sep);}
+/* ── 親機キュー: 呼び出し操作ボタン（同サイズ横並び） ── */
+.queue-call-row{display:flex;border-top:0.5px solid var(--sep);}
+.queue-call-btn{flex:1;padding:11px 8px;background:var(--primary-light);color:var(--primary);border:none;font-size:13px;font-weight:600;cursor:pointer;}
 .queue-call-btn.calling{background:var(--orange-bg);color:var(--orange-text);}
-.queue-call-row{display:flex;}
-.queue-call-row .queue-done-btn{flex:1;padding:10px;background:var(--green-bg);color:var(--green-text);border:none;border-left:0.5px solid var(--sep);font-size:13px;font-weight:600;cursor:pointer;border-top:0.5px solid var(--sep);}
+.queue-call-row .queue-done-btn{flex:1;padding:11px 8px;background:var(--green-bg);color:var(--green-text);border:none;border-left:0.5px solid var(--sep);font-size:13px;font-weight:600;cursor:pointer;}
 .queue-call-row .queue-done-btn:disabled{background:var(--surface2);color:var(--text3);cursor:default;}
 
 /* ── P2Pモーダル: 4ロール ── */
@@ -1412,10 +1422,10 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
 
     <!-- ホスト設定エリア -->
     <div id="p2p-host-area" style="display:none;">
-      <div class="p2p-label">接続コード（子機に伝えてください）</div>
+      <div class="p2p-label">接続コード</div>
       <div id="p2p-room-id-display">
         <div class="p2p-id-val" id="p2p-my-id">----</div>
-        <div class="p2p-id-hint">このコードをキッチン端末に入力してもらってください</div>
+        <div class="p2p-id-hint">子機でこのコードを入力してください</div>
       </div>
       <div id="p2p-status-area">
         <div class="p2p-status-row">
@@ -1424,6 +1434,7 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
             <div class="p2p-status-text" id="p2p-host-status-text">接続待ち中...</div>
             <div class="p2p-status-sub" id="p2p-host-status-sub">子機からの接続を待っています</div>
           </div>
+          <div id="p2p-conn-count" style="margin-left:auto;font-size:13px;font-weight:600;color:var(--primary);display:none;"></div>
         </div>
       </div>
       <button class="p2p-disconnect-btn" onclick="p2pDisconnect()">切断して終了</button>
@@ -3239,18 +3250,24 @@ function genRoomCode() {
 }
 
 function openP2PModal() {
-  // 既接続なら状態表示へ
-  document.getElementById('p2p-role-select').style.display = 'flex';
-  document.getElementById('p2p-role-select').style.flexDirection = 'column';
-  document.getElementById('p2p-role-select').style.gap = '14px';
-  document.getElementById('p2p-host-area').style.display = 'none';
+  // 全エリアを初期化
+  document.getElementById('p2p-role-select').style.display = 'none';
+  document.getElementById('p2p-host-area').style.display   = 'none';
   document.getElementById('p2p-client-area').style.display = 'none';
 
-  if (p2pConn && p2pConn.open) {
-    // 接続中は状態を直接表示
-    if (p2pRole === 'host') { showP2PHostArea(); }
-    else { showP2PClientArea(); }
-    document.getElementById('p2p-role-select').style.display = 'none';
+  if (p2pRole === 'host') {
+    // 親機：常にコード＋接続状況を表示（ロール選択は出さない）
+    showP2PHostArea();
+  } else if (p2pConn && p2pConn.open) {
+    // 子機・接続済み：接続状況を表示
+    showP2PClientArea();
+    document.getElementById('p2p-client-status-area').style.display = 'block';
+  } else {
+    // 未接続：ロール選択
+    const rs = document.getElementById('p2p-role-select');
+    rs.style.display = 'flex';
+    rs.style.flexDirection = 'column';
+    rs.style.gap = '14px';
   }
   document.getElementById('p2p-modal-bg').classList.add('open');
 }
@@ -3432,10 +3449,14 @@ function handleP2PMessage(data) {
 
     // ── 親機が受信 ──
     case 'mark_done':
-      // 子機からの提供済み通知 → 親機で処理 → 全子機へブロードキャスト
       if (p2pRole === 'host') {
         markOrderDone(data.qid);
         showToast(`注文 #${data.qid} が提供済みになりました`);
+        // 呼び出し状態から除去して全子機へ再送
+        hostCallingSet.delete(data.qid);
+        renderHostCallingBar();
+        renderQueue();
+        p2pBroadcast({ type: 'update_calling', calling: [...hostCallingSet], done: [data.qid] });
       }
       break;
 
@@ -3601,8 +3622,9 @@ function updateDisplayConnBadge(connected) {
 let displayDoneSet = new Set(); // 提供済みとして表示する番号
 
 function renderDisplay(callingArr, doneArr) {
+  // 提供済みセット更新
+  (doneArr || []).forEach(q => displayDoneSet.add(q));
   callingArr.forEach(q => displayDoneSet.delete(q)); // 呼び出し中は済みから除外
-  doneArr.forEach(q => displayDoneSet.add(q));
 
   const wrap  = document.getElementById('display-nums-wrap');
   const empty = document.getElementById('display-empty');
@@ -3610,20 +3632,25 @@ function renderDisplay(callingArr, doneArr) {
   const dLbl  = document.getElementById('display-done-label');
 
   if (callingArr.length === 0) {
+    wrap.className = '';
     wrap.innerHTML = '';
     wrap.appendChild(empty);
     empty.style.display = '';
   } else {
     empty.style.display = 'none';
-    wrap.innerHTML = callingArr.sort((a,b)=>a-b).map(q =>
+    // 数に応じてクラスを変えてサイズ調整
+    if      (callingArr.length >= 5) wrap.className = 'many';
+    else if (callingArr.length >= 3) wrap.className = 'multi';
+    else                             wrap.className = '';
+    wrap.innerHTML = [...callingArr].sort((a,b)=>a-b).map(q =>
       `<div class="display-num">${q}</div>`
     ).join('');
   }
 
-  const doneArr2 = [...displayDoneSet].filter(q => !callingArr.includes(q));
-  if (doneArr2.length > 0) {
+  const doneNums = [...displayDoneSet].filter(q => !callingArr.includes(q));
+  if (doneNums.length > 0) {
     dLbl.style.display = '';
-    dWrap.innerHTML = doneArr2.sort((a,b)=>a-b).slice(-8).map(q =>
+    dWrap.innerHTML = doneNums.sort((a,b)=>a-b).slice(-10).map(q =>
       `<div class="display-done-num">${q}</div>`
     ).join('');
   } else {
@@ -3651,6 +3678,13 @@ function updateP2PHostStatus(dotClass, text, sub) {
   dot.className = 'p2p-status-dot ' + dotClass;
   document.getElementById('p2p-host-status-text').textContent = text;
   document.getElementById('p2p-host-status-sub').textContent = sub || '';
+  // 接続台数表示
+  const countEl = document.getElementById('p2p-conn-count');
+  if (countEl) {
+    const n = p2pConns.filter(c => c.open).length;
+    if (n > 0) { countEl.textContent = `${n}台接続中`; countEl.style.display = ''; }
+    else        { countEl.style.display = 'none'; }
+  }
 }
 function updateP2PClientStatus(dotClass, text) {
   const dot = document.getElementById('p2p-client-status-dot');
@@ -3827,8 +3861,8 @@ function renderCallingPanel() {
 // カードHTML
 function callerCardHTML(o) {
   const isCalling = callingSet.has(o.qid);
-  const summary   = o.items.map(it=>`${it.icon}${it.name}×${it.qty}`).join('、');
-  let statusText  = o.done ? '✓ 提供済み' : isCalling ? '📢 呼び出し中' : '待機中';
+  const summary   = o.items.map(it=>`${it.icon}${it.name}\u00d7${it.qty}`).join('、');
+  const statusText = o.done ? '✓ 提供済み' : isCalling ? '📢 呼び出し中' : '待機中';
   return `<div class="caller-card${o.done?' done':isCalling?' calling':''}">
     <div class="caller-card-header">
       <div class="caller-card-num">${o.qid}</div>
@@ -3845,7 +3879,6 @@ function callerCardHTML(o) {
         ${isCalling ? '📢 呼び出し中（解除）' : '📢 呼び出す'}
       </button>
       <button class="caller-done-btn"
-        ${!isCalling ? 'disabled' : ''}
         onclick="callerMarkDone(${o.qid})">
         ✓ 提供済み
       </button>
@@ -3888,10 +3921,8 @@ function renderCaller() {
 function callerToggleCall(qid) {
   if (callingSet.has(qid)) { callerStopCall(qid); return; }
   callingSet.add(qid);
-  // バイブ
   if (navigator.vibrate) navigator.vibrate(80);
   renderCaller();
-  // 親機へ通知
   p2pSend({ type: 'calling', qid, calling: true });
 }
 function callerStopCall(qid) {
@@ -3900,7 +3931,7 @@ function callerStopCall(qid) {
   p2pSend({ type: 'calling', qid, calling: false });
 }
 
-// 提供済み
+// 提供済み（呼び出し中でなくても操作可）
 function callerMarkDone(qid) {
   const o = callerOrders.find(x => x.qid === qid);
   if (!o) return;
@@ -3908,6 +3939,7 @@ function callerMarkDone(qid) {
   callingSet.delete(qid);
   renderCaller();
   updateCallerBadge();
+  p2pSend({ type: 'calling', qid, calling: false });
   p2pSend({ type: 'mark_done', qid });
   showToast(`注文 #${qid} を提供済みにしました`);
 }
