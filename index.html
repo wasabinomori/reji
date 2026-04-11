@@ -3437,7 +3437,7 @@ function setupP2PConnectionHost(conn) {
 
 // ── 子機側接続ハンドラ ──
 function setupP2PConnectionClient(conn) {
-  conn.on('data', handleP2PMessage);
+  conn.on('data', data => handleP2PMessage(data, null));
   conn.on('close', () => {
     p2pConn = null;
     updateP2PIndicator('disconnected', '接続');
@@ -3656,22 +3656,18 @@ let displayDoneSet = new Set(); // 提供済みとして表示する番号
 
 function renderDisplay(callingArr, doneArr) {
   // 提供済みセット更新
-  (doneArr || []).forEach(q => displayDoneSet.add(q));
-  callingArr.forEach(q => displayDoneSet.delete(q)); // 呼び出し中は済みから除外
+  (doneArr || []).forEach(q => displayDoneSet.add(Number(q)));
+  callingArr.forEach(q => displayDoneSet.delete(Number(q)));
 
   const wrap  = document.getElementById('display-nums-wrap');
-  const empty = document.getElementById('display-empty');
   const dWrap = document.getElementById('display-done-wrap');
   const dLbl  = document.getElementById('display-done-label');
+  if (!wrap) return;
 
   if (callingArr.length === 0) {
     wrap.className = '';
-    wrap.innerHTML = '';
-    wrap.appendChild(empty);
-    empty.style.display = '';
+    wrap.innerHTML = '<div id="display-empty" style="font-size:min(5vw,22px);color:rgba(255,255,255,.2);font-weight:500;">待機中</div>';
   } else {
-    empty.style.display = 'none';
-    // 数に応じてクラスを変えてサイズ調整
     if      (callingArr.length >= 5) wrap.className = 'many';
     else if (callingArr.length >= 3) wrap.className = 'multi';
     else                             wrap.className = '';
@@ -3680,16 +3676,11 @@ function renderDisplay(callingArr, doneArr) {
     ).join('');
   }
 
-  const doneNums = [...displayDoneSet].filter(q => !callingArr.includes(q));
-  if (doneNums.length > 0) {
-    dLbl.style.display = '';
-    dWrap.innerHTML = doneNums.sort((a,b)=>a-b).slice(-10).map(q =>
-      `<div class="display-done-num">${q}</div>`
-    ).join('');
-  } else {
-    dLbl.style.display = 'none';
-    dWrap.innerHTML = '';
-  }
+  const doneNums = [...displayDoneSet].filter(q => !callingArr.includes(Number(q)));
+  if (dLbl) dLbl.style.display = doneNums.length > 0 ? '' : 'none';
+  if (dWrap) dWrap.innerHTML = doneNums.length > 0
+    ? doneNums.sort((a,b)=>a-b).slice(-10).map(q => `<div class="display-done-num">${q}</div>`).join('')
+    : '';
 }
 
 // display-viewのswitchTab時に初期描画
@@ -3872,17 +3863,14 @@ function updateCallerBadge() {
 function renderCallingPanel() {
   const panel = document.getElementById('caller-calling-panel');
   const nums  = document.getElementById('caller-calling-nums');
-  const empty = document.getElementById('caller-calling-empty');
+  if (!panel || !nums) return;
 
   if (callingSet.size === 0) {
     panel.classList.add('empty');
-    nums.innerHTML = '';
-    nums.appendChild(empty);
-    empty.style.display = '';
+    nums.innerHTML = '<span id="caller-calling-empty" style="font-size:13px;color:var(--text3);padding:4px 0;">なし</span>';
     return;
   }
   panel.classList.remove('empty');
-  empty.style.display = 'none';
   nums.innerHTML = [...callingSet].sort((a,b)=>a-b).map(qid =>
     `<div class="caller-num-badge" onclick="callerStopCall(${qid})" title="タップで呼び出し解除">
       ${qid}
