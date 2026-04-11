@@ -540,7 +540,7 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
 .p2p-close-btn{width:100%;padding:11px;background:var(--surface2);color:var(--text);border:0.5px solid var(--sep2);border-radius:var(--radius-sm);font-size:14px;cursor:pointer;}
 
 /* ── キッチンビュー ── */
-#kitchen-view{flex-direction:column;background:var(--bg);}
+#kitchen-view{flex-direction:column;background:var(--bg);overflow:hidden;}
 #kitchen-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:0.5px solid var(--sep2);background:var(--surface);flex-shrink:0;}
 #kitchen-header h2{font-size:16px;font-weight:600;}
 #kitchen-conn-badge{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;background:var(--surface2);font-size:12px;font-weight:500;}
@@ -714,6 +714,27 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
         </div>
         <div id="tx-list"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- キッチンビュー（子機用） -->
+  <div class="view" id="kitchen-view">
+    <div id="kitchen-header">
+      <h2>🍳 キッチン</h2>
+      <div id="kitchen-conn-badge">
+        <div id="kitchen-conn-dot" style="width:8px;height:8px;border-radius:50%;background:var(--text3);"></div>
+        <span id="kitchen-conn-label">未接続</span>
+      </div>
+    </div>
+    <div id="kitchen-summary" style="display:none">
+      <div id="kitchen-summary-inner"></div>
+    </div>
+    <div id="kitchen-scroll">
+      <div id="kitchen-empty" class="show">
+        <div id="kitchen-empty-icon">📭</div>
+        <span id="kitchen-empty-text">レジからの注文を待っています</span>
+      </div>
+      <div id="kitchen-list"></div>
     </div>
   </div>
 </div>
@@ -1096,27 +1117,6 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
       <button class="p2p-disconnect-btn" onclick="p2pDisconnect()" style="margin-top:4px;">切断して戻る</button>
       <button class="p2p-close-btn" onclick="closeP2PModal()">閉じる（接続は維持）</button>
     </div>
-  </div>
-</div>
-
-<!-- キッチンビュー（子機用） -->
-<div class="view" id="kitchen-view">
-  <div id="kitchen-header">
-    <h2>🍳 キッチン</h2>
-    <div id="kitchen-conn-badge">
-      <div id="kitchen-conn-dot" style="width:8px;height:8px;border-radius:50%;background:var(--text3);"></div>
-      <span id="kitchen-conn-label">未接続</span>
-    </div>
-  </div>
-  <div id="kitchen-summary" style="display:none">
-    <div id="kitchen-summary-inner"></div>
-  </div>
-  <div id="kitchen-scroll">
-    <div id="kitchen-empty" class="show">
-      <div id="kitchen-empty-icon">📭</div>
-      <span id="kitchen-empty-text">レジからの注文を待っています</span>
-    </div>
-    <div id="kitchen-list"></div>
   </div>
 </div>
 
