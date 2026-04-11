@@ -151,13 +151,45 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
 .qs-chip-qty{font-size:13px;font-weight:700;color:var(--primary);}
 .qs-total-chip{background:var(--green-bg);color:var(--green-text);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;white-space:nowrap;margin-left:auto;}
 
-/* ── Sales end modal ── */
-#sales-end-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end;justify-content:center;z-index:200;backdrop-filter:blur(5px);}
-#sales-end-bg.open{display:flex;}
-#sales-end-modal{background:var(--surface);border-radius:28px 28px 0 0;width:100%;max-width:520px;padding:20px 24px calc(var(--safe-bottom)+28px);max-height:88vh;overflow-y:auto;animation:slideUp .3s ease;}
-#sales-end-modal .modal-handle{width:36px;height:4px;border-radius:2px;background:var(--sep2);margin:0 auto 18px;}
+/* ── Register close modal (レジ締め) ── */
+#rc-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end;justify-content:center;z-index:200;backdrop-filter:blur(5px);}
+#rc-bg.open{display:flex;}
+#rc-modal{background:var(--surface);border-radius:28px 28px 0 0;width:100%;max-width:560px;padding:20px 24px calc(var(--safe-bottom)+28px);max-height:90vh;overflow-y:auto;animation:slideUp .3s ease;}
+.rc-title{font-size:20px;font-weight:700;text-align:center;margin-bottom:4px;}
+.rc-period{font-size:13px;color:var(--text3);text-align:center;margin-bottom:14px;}
+.rc-tabs{display:flex;gap:4px;background:var(--surface2);border-radius:9px;padding:3px;margin-bottom:14px;}
+.rc-tab{flex:1;padding:7px 0;border:none;background:transparent;font-size:14px;font-weight:500;color:var(--text3);border-radius:7px;cursor:pointer;}
+.rc-tab.active{background:var(--surface);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.1);}
+.rc-cash-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:0.5px solid var(--sep);font-size:13px;}
+.rc-cash-row:last-child{border-bottom:none;}
+.rc-cash-label{color:var(--text3);}
+.rc-cash-val{font-weight:600;font-size:15px;}
+.rc-cash-row-total .rc-cash-label{color:var(--text);font-weight:600;}
+.rc-cash-row-total .rc-cash-val{font-size:18px;color:var(--primary);}
+.rc-diff-row{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-radius:var(--radius-sm);margin-top:8px;}
+.rc-diff-row.surplus{background:var(--green-bg);}
+.rc-diff-row.shortage{background:var(--red-bg);}
+.rc-diff-row.surplus .rc-cash-label,.rc-diff-row.surplus .rc-cash-val{color:var(--green-text);}
+.rc-diff-row.shortage .rc-cash-label,.rc-diff-row.shortage .rc-cash-val{color:var(--red-text);}
+.rc-denom-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.rc-denom-item{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.rc-denom-label{font-size:11px;color:var(--text3);}
+.rc-denom-input{width:100%;padding:7px 4px;border:0.5px solid var(--sep2);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);font-size:14px;text-align:center;outline:none;}
+.rc-denom-input:focus{border-color:var(--primary);}
+
+/* ── Cash setup 2ステップ ── */
+#cash-setup-modal{background:var(--surface);border-radius:var(--radius);width:92%;max-width:400px;padding:26px 24px;}
+#cash-setup-modal h3{font-size:18px;font-weight:700;margin-bottom:6px;text-align:center;}
+.cash-mode-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:4px;}
+.cash-mode-btn{display:flex;align-items:center;gap:14px;padding:16px 18px;border:1.5px solid var(--sep2);border-radius:var(--radius);background:var(--surface2);cursor:pointer;text-align:left;transition:all .15s;}
+.cash-mode-btn:active,.cash-mode-btn:hover{border-color:var(--primary);background:var(--primary-light);}
+.cash-mode-icon{font-size:28px;flex-shrink:0;}
+.cash-mode-title{font-size:15px;font-weight:600;display:block;margin-bottom:3px;}
+.cash-mode-desc{font-size:12px;color:var(--text3);display:block;line-height:1.4;}
+#cash-setup-back{background:var(--surface2);color:var(--text);}
+
+/* ── Register close & shared se-* styles ── */
 .se-title{font-size:20px;font-weight:700;text-align:center;margin-bottom:4px;}
-.se-subtitle{font-size:13px;color:var(--text3);text-align:center;margin-bottom:20px;}
 .se-section{background:var(--surface2);border-radius:var(--radius);padding:16px;margin-bottom:12px;}
 .se-section-title{font-size:12px;font-weight:600;color:var(--text3);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px;}
 .se-kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:4px;}
@@ -500,7 +532,7 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
     <span id="sales-status-text">販売停止中</span>
   </div>
   <div style="display:flex;gap:8px;align-items:center;">
-    <button id="sales-end-btn" onclick="openSalesEndModal()" style="display:none;padding:5px 14px;border-radius:20px;border:none;font-size:12px;font-weight:600;cursor:pointer;background:var(--surface2);color:var(--text3);">販売終了</button>
+    <button id="register-close-btn" onclick="openRegisterClose()" style="display:none;padding:5px 14px;border-radius:20px;border:none;font-size:12px;font-weight:600;cursor:pointer;background:#FF9500;color:#fff;">🔐 レジ締め</button>
     <button id="sales-toggle-btn" onclick="toggleSales()">販売開始</button>
   </div>
 </div>
@@ -791,49 +823,82 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
   </div>
 </div>
 
-<!-- Sales end modal -->
-<div id="sales-end-bg" onclick="if(event.target===this)closeSalesEndModal()">
-  <div id="sales-end-modal">
+<!-- Register close modal (レジ締め) -->
+<div id="rc-bg" onclick="if(event.target===this)closeRegisterClose()">
+  <div id="rc-modal">
     <div class="modal-handle"></div>
-    <div class="se-title">🎉 販売終了</div>
-    <div class="se-subtitle" id="se-period"></div>
+    <div class="rc-title">🔐 レジ締め</div>
+    <div class="rc-period" id="rc-period"></div>
 
-    <div class="se-section">
-      <div class="se-section-title">総合実績</div>
-      <div class="se-kpi-grid" id="se-kpi"></div>
-      <div class="se-grand">
-        <span class="se-grand-lbl">総売上</span>
-        <span class="se-grand-val" id="se-grand-val">¥0</span>
+    <!-- タブ -->
+    <div class="rc-tabs">
+      <button class="rc-tab active" onclick="switchRcTab('summary')">売上実績</button>
+      <button class="rc-tab" onclick="switchRcTab('cash')">現金確認</button>
+    </div>
+
+    <!-- 売上実績パネル -->
+    <div id="rc-panel-summary">
+      <div class="se-section">
+        <div class="se-section-title">総合実績</div>
+        <div class="se-kpi-grid" id="rc-kpi"></div>
+        <div class="se-grand"><span class="se-grand-lbl">総売上</span><span class="se-grand-val" id="rc-grand-val">¥0</span></div>
+      </div>
+      <div class="se-section">
+        <div class="se-section-title">支払方法別</div>
+        <div id="rc-methods"></div>
+      </div>
+      <div class="se-section">
+        <div class="se-section-title">商品別販売数</div>
+        <div id="rc-products"></div>
       </div>
     </div>
 
-    <div class="se-section">
-      <div class="se-section-title">支払方法別</div>
-      <div id="se-methods"></div>
+    <!-- 現金確認パネル -->
+    <div id="rc-panel-cash" style="display:none;">
+      <div class="se-section">
+        <div class="se-section-title">釣り銭管理</div>
+        <div class="rc-cash-row">
+          <span class="rc-cash-label">開始時レジ現金</span>
+          <span class="rc-cash-val" id="rc-cash-start">¥0</span>
+        </div>
+        <div class="rc-cash-row">
+          <span class="rc-cash-label">現金売上（計算値）</span>
+          <span class="rc-cash-val" id="rc-cash-sales">¥0</span>
+        </div>
+        <div class="rc-cash-row rc-cash-row-total">
+          <span class="rc-cash-label">理論レジ現金</span>
+          <span class="rc-cash-val" id="rc-cash-theory">¥0</span>
+        </div>
+      </div>
+      <div class="se-section">
+        <div class="se-section-title">実際のレジ内現金（枚数確認）</div>
+        <div id="rc-denom-grid" class="rc-denom-grid"></div>
+        <div class="rc-cash-row rc-cash-row-total" style="margin-top:10px;">
+          <span class="rc-cash-label">実際の合計</span>
+          <span class="rc-cash-val" id="rc-cash-actual">¥0</span>
+        </div>
+        <div id="rc-diff-row" class="rc-diff-row" style="display:none;">
+          <span class="rc-cash-label" id="rc-diff-label">差異</span>
+          <span class="rc-cash-val" id="rc-diff-val">¥0</span>
+        </div>
+      </div>
     </div>
 
-    <div class="se-section">
-      <div class="se-section-title">商品別販売数</div>
-      <div id="se-products"></div>
-    </div>
-
+    <!-- アクション -->
     <div class="se-actions">
-      <!-- CSV export buttons -->
       <div class="se-export-row">
         <div class="se-export-label">📄 CSVで保存</div>
         <div class="se-export-btns">
           <button class="se-export-btn" onclick="exportCsvLocal()">
-            <span class="se-export-icon">⬇️</span>
-            <span>端末に保存</span>
+            <span class="se-export-icon">⬇️</span><span>端末に保存</span>
           </button>
           <button class="se-export-btn" id="se-drive-btn" onclick="exportCsvDrive()">
-            <span class="se-export-icon">☁️</span>
-            <span id="se-drive-label">Driveに保存</span>
+            <span class="se-export-icon">☁️</span><span id="se-drive-label">Driveに保存</span>
           </button>
         </div>
       </div>
-      <button class="se-btn se-btn-secondary" onclick="closeSalesEndModal()">閉じる（データを保持）</button>
-      <button class="se-btn se-btn-primary" onclick="confirmSalesEnd()">販売終了してリセット</button>
+      <button class="se-btn se-btn-secondary" onclick="closeRegisterClose()">閉じる（データを保持）</button>
+      <button class="se-btn se-btn-primary" onclick="confirmRegisterClose()">レジ締めしてリセット</button>
     </div>
   </div>
 </div>
@@ -841,16 +906,37 @@ body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
 <!-- Cash setup modal -->
 <div id="cash-setup-bg">
   <div id="cash-setup-modal">
-    <h3>💰 釣り銭の準備</h3>
-    <div class="cash-setup-sub">レジ内の現金枚数を入力してください<br>（スキップ可）</div>
-    <div class="cash-denom-grid" id="cash-denom-grid"></div>
-    <div class="cash-setup-total">
-      <span class="cash-setup-total-label">レジ内合計</span>
-      <span class="cash-setup-total-val" id="cash-setup-total-val">¥0</span>
+    <h3>💰 販売開始</h3>
+
+    <!-- ステップ1: 現金管理モード選択 -->
+    <div id="cash-step-1">
+      <div class="cash-setup-sub">釣り銭の管理方法を選択してください</div>
+      <div class="cash-mode-grid">
+        <button class="cash-mode-btn" onclick="selectCashMode('full')">
+          <span class="cash-mode-icon">🪙</span>
+          <span class="cash-mode-title">枚数管理あり</span>
+          <span class="cash-mode-desc">紙幣・硬貨の枚数を記録して釣り銭差異を管理</span>
+        </button>
+        <button class="cash-mode-btn" onclick="selectCashMode('none')">
+          <span class="cash-mode-icon">⚡️</span>
+          <span class="cash-mode-title">すぐに開始</span>
+          <span class="cash-mode-desc">枚数記録なしですぐに販売開始</span>
+        </button>
+      </div>
     </div>
-    <div class="cash-setup-btns">
-      <button id="cash-setup-skip" onclick="skipCashSetup()">スキップ</button>
-      <button id="cash-setup-ok" onclick="confirmCashSetup()">販売開始</button>
+
+    <!-- ステップ2: 枚数入力 -->
+    <div id="cash-step-2" style="display:none;">
+      <div class="cash-setup-sub">開始時のレジ内現金を入力してください</div>
+      <div class="cash-denom-grid" id="cash-denom-grid"></div>
+      <div class="cash-setup-total">
+        <span class="cash-setup-total-label">レジ内合計</span>
+        <span class="cash-setup-total-val" id="cash-setup-total-val">¥0</span>
+      </div>
+      <div class="cash-setup-btns">
+        <button id="cash-setup-back" onclick="backCashStep()">← 戻る</button>
+        <button id="cash-setup-ok" onclick="confirmCashSetup()">販売開始</button>
+      </div>
     </div>
   </div>
 </div>
@@ -910,7 +996,9 @@ let driveFileToken = null;
 // 現金管理
 const DENOMS = [10000,5000,1000,500,100,50,10,5,1];
 let cashInRegister = JSON.parse(localStorage.getItem('cash_in_register') || 'null') || {};
-let lastChange = 0; // 直前のお釣り額
+let cashStartSnapshot = JSON.parse(localStorage.getItem('cash_start_snapshot') || 'null') || {};
+let cashMode = localStorage.getItem('cash_mode') || 'none'; // 'full' or 'none'
+let lastChange = 0;
 
 // ══════════════════════════════════════════════
 // BOOT
@@ -998,24 +1086,23 @@ function toggleSales() {
 }
 
 function updateSalesBanner() {
-  const banner = document.getElementById('sales-banner');
-  const text = document.getElementById('sales-status-text');
-  const btn = document.getElementById('sales-toggle-btn');
-  const endBtn = document.getElementById('sales-end-btn');
+  const banner  = document.getElementById('sales-banner');
+  const text    = document.getElementById('sales-status-text');
+  const btn     = document.getElementById('sales-toggle-btn');
+  const rcBtn   = document.getElementById('register-close-btn');
   const overlay = document.getElementById('pos-closed-overlay');
-  const payBtn = document.getElementById('pay-btn');
+  const payBtn  = document.getElementById('pay-btn');
   if (salesOpen) {
     banner.className = 'open';
     text.textContent = '販売中';
-    btn.textContent = '販売停止';
-    endBtn.style.display = 'none';
+    btn.textContent  = '販売停止';
+    rcBtn.style.display = 'none';
     overlay.style.display = 'none';
   } else {
     banner.className = 'closed';
     text.textContent = '販売停止中';
-    btn.textContent = '販売開始';
-    // 取引が1件でもあれば「販売終了」ボタンを表示
-    endBtn.style.display = transactions.length ? 'block' : 'none';
+    btn.textContent  = '販売開始';
+    rcBtn.style.display = transactions.length ? 'block' : 'none';
     overlay.style.display = 'flex';
   }
   if (payBtn) payBtn.disabled = !salesOpen || !Object.keys(cart).length;
@@ -1397,37 +1484,61 @@ function updateTotals() {
 }
 
 // ══════════════════════════════════════════════
-// CASH SETUP
+// CASH SETUP（2ステップ）
 // ══════════════════════════════════════════════
 function cashTotal() {
   return DENOMS.reduce((s, d) => s + d * (parseInt(cashInRegister[d]) || 0), 0);
 }
 
 function openCashSetup() {
-  const grid = document.getElementById('cash-denom-grid');
-  grid.innerHTML = DENOMS.map(d =>
-    `<div class="cash-denom-item">
-      <span class="cash-denom-label">${d >= 1000 ? (d/1000)+'千円' : d+'円'}</span>
-      <input class="cash-denom-input" type="number" inputmode="numeric" min="0" placeholder="0"
-        value="${cashInRegister[d] || ''}"
-        oninput="cashInRegister[${d}]=parseInt(this.value)||0;updateCashSetupTotal()">
-    </div>`
-  ).join('');
-  updateCashSetupTotal();
+  // ステップ1を表示
+  document.getElementById('cash-step-1').style.display = 'block';
+  document.getElementById('cash-step-2').style.display = 'none';
   document.getElementById('cash-setup-bg').classList.add('open');
 }
+
+function selectCashMode(mode) {
+  cashMode = mode;
+  localStorage.setItem('cash_mode', mode);
+  if (mode === 'none') {
+    cashInRegister = {};
+    cashStartSnapshot = {};
+    document.getElementById('cash-setup-bg').classList.remove('open');
+    startSales();
+  } else {
+    // ステップ2へ
+    document.getElementById('cash-step-1').style.display = 'none';
+    document.getElementById('cash-step-2').style.display = 'block';
+    cashInRegister = {};
+    const grid = document.getElementById('cash-denom-grid');
+    grid.innerHTML = DENOMS.map(d =>
+      `<div class="cash-denom-item">
+        <span class="cash-denom-label">${d >= 1000 ? (d/1000)+'千円' : d+'円'}</span>
+        <input class="cash-denom-input" type="number" inputmode="numeric" min="0" placeholder="0"
+          oninput="cashInRegister[${d}]=parseInt(this.value)||0;updateCashSetupTotal()">
+      </div>`
+    ).join('');
+    updateCashSetupTotal();
+  }
+}
+
+function backCashStep() {
+  document.getElementById('cash-step-1').style.display = 'block';
+  document.getElementById('cash-step-2').style.display = 'none';
+}
+
 function updateCashSetupTotal() {
   document.getElementById('cash-setup-total-val').textContent = fmt(cashTotal());
 }
-function skipCashSetup() {
-  document.getElementById('cash-setup-bg').classList.remove('open');
-  startSales();
-}
+
 function confirmCashSetup() {
+  cashStartSnapshot = { ...cashInRegister };
   localStorage.setItem('cash_in_register', JSON.stringify(cashInRegister));
+  localStorage.setItem('cash_start_snapshot', JSON.stringify(cashStartSnapshot));
   document.getElementById('cash-setup-bg').classList.remove('open');
   startSales();
 }
+
 function startSales() {
   salesOpen = true;
   localStorage.setItem('sales_open', 'true');
@@ -2096,244 +2207,136 @@ function renderReport() {
 }
 
 // ══════════════════════════════════════════════
-// SALES END MODAL
+// REGISTER CLOSE（レジ締め）
 // ══════════════════════════════════════════════
-function openSalesEndModal() {
+let _rcActualCash = {}; // レジ締め時に入力した実在庫
+
+function openRegisterClose() {
   const now = new Date();
   const todays = transactions.filter(t => {
     const d = new Date(t.date);
-    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+    return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth() && d.getDate()===now.getDate();
   });
 
-  // 期間表示
-  const earliest = todays.length ? new Date(todays[todays.length - 1].date) : now;
-  const fmt2 = d => `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
-  document.getElementById('se-period').textContent =
-    todays.length ? `${now.getMonth()+1}/${now.getDate()}（${fmt2(earliest)} 〜 ${fmt2(now)}）` : '本日の取引なし';
+  // 期間
+  const earliest = todays.length ? new Date(todays[todays.length-1].date) : now;
+  const fmtT = d => `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+  document.getElementById('rc-period').textContent =
+    todays.length ? `${now.getMonth()+1}/${now.getDate()}（${fmtT(earliest)} 〜 ${fmtT(now)}）` : '本日の取引なし';
 
   // KPI
-  const totalAmt = todays.reduce((a, b) => a + b.total, 0);
-  const txCount = todays.length;
-  const avgAmt = txCount ? Math.round(totalAmt / txCount) : 0;
-  document.getElementById('se-kpi').innerHTML = [
-    { v: txCount + '件', l: '取引件数' },
-    { v: fmt(avgAmt), l: '客単価' },
-    { v: orderQueue.filter(o => o.done).length + '件', l: '提供済み注文' },
-  ].map(k => `<div class="se-kpi"><div class="se-kpi-val">${k.v}</div><div class="se-kpi-lbl">${k.l}</div></div>`).join('');
-  document.getElementById('se-grand-val').textContent = fmt(totalAmt);
+  const totalAmt = todays.reduce((a,b) => a+b.total, 0);
+  const txCount  = todays.length;
+  const avgAmt   = txCount ? Math.round(totalAmt/txCount) : 0;
+  document.getElementById('rc-kpi').innerHTML = [
+    {v: txCount+'件', l:'取引件数'},
+    {v: fmt(avgAmt),  l:'客単価'},
+    {v: orderQueue.filter(o=>o.done).length+'件', l:'提供済み注文'},
+  ].map(k=>`<div class="se-kpi"><div class="se-kpi-val">${k.v}</div><div class="se-kpi-lbl">${k.l}</div></div>`).join('');
+  document.getElementById('rc-grand-val').textContent = fmt(totalAmt);
 
   // 支払方法別
   const byMethod = {};
-  todays.forEach(t => { byMethod[t.method] = (byMethod[t.method] || 0) + t.total; });
-  document.getElementById('se-methods').innerHTML = Object.keys(byMethod).length
-    ? Object.entries(byMethod).sort((a,b) => b[1]-a[1]).map(([m, v]) =>
+  todays.forEach(t => { byMethod[t.method] = (byMethod[t.method]||0) + t.total; });
+  document.getElementById('rc-methods').innerHTML = Object.keys(byMethod).length
+    ? Object.entries(byMethod).sort((a,b)=>b[1]-a[1]).map(([m,v]) =>
         `<div class="se-method-row"><span class="se-method-name">${m}</span><span class="se-method-val">${fmt(v)}</span></div>`
       ).join('')
     : '<div style="color:var(--text3);font-size:13px;padding:4px 0">取引がありません</div>';
 
-  // 商品別集計（orderQueueから）
+  // 商品別
   const todayOrders = orderQueue.filter(o => {
     const d = new Date(o.date);
-    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+    return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth() && d.getDate()===now.getDate();
   });
   const prodTally = {};
   todayOrders.forEach(o => o.items.forEach(it => {
-    if (!prodTally[it.id]) prodTally[it.id] = { icon: it.icon, name: it.name, qty: 0, amt: 0 };
-    prodTally[it.id].qty += it.qty;
-    prodTally[it.id].amt += it.price * it.qty;
+    if (!prodTally[it.id]) prodTally[it.id] = {icon:it.icon,name:it.name,qty:0,amt:0};
+    prodTally[it.id].qty += it.qty; prodTally[it.id].amt += it.price*it.qty;
   }));
-  const sorted = Object.values(prodTally).sort((a, b) => b.qty - a.qty);
-  document.getElementById('se-products').innerHTML = sorted.length
-    ? sorted.map(p =>
-        `<div class="se-product-row">
-          <span class="se-product-icon">${p.icon}</span>
-          <span class="se-product-name">${p.name}</span>
-          <span class="se-product-qty">${p.qty}点</span>
-          <span class="se-product-amt">${fmt(p.amt)}</span>
-        </div>`
-      ).join('')
+  const sortedP = Object.values(prodTally).sort((a,b)=>b.qty-a.qty);
+  document.getElementById('rc-products').innerHTML = sortedP.length
+    ? sortedP.map(p=>`<div class="se-product-row">
+        <span class="se-product-icon">${p.icon}</span>
+        <span class="se-product-name">${p.name}</span>
+        <span class="se-product-qty">${p.qty}点</span>
+        <span class="se-product-amt">${fmt(p.amt)}</span>
+      </div>`).join('')
     : '<div style="color:var(--text3);font-size:13px;padding:4px 0">商品データがありません</div>';
 
-  document.getElementById('sales-end-bg').classList.add('open');
+  // 現金確認パネル
+  const cashSales = todays.filter(t=>t.method==='現金').reduce((a,b)=>a+b.total, 0);
+  const startAmt  = DENOMS.reduce((s,d)=>s+d*(cashStartSnapshot[d]||0), 0);
+  const theoryAmt = startAmt + cashSales;
+  document.getElementById('rc-cash-start').textContent  = cashMode==='full' ? fmt(startAmt) : '（管理なし）';
+  document.getElementById('rc-cash-sales').textContent  = fmt(cashSales);
+  document.getElementById('rc-cash-theory').textContent = cashMode==='full' ? fmt(theoryAmt) : '—';
+
+  // 実在庫入力グリッド
+  _rcActualCash = {};
+  document.getElementById('rc-denom-grid').innerHTML = DENOMS.map(d =>
+    `<div class="rc-denom-item">
+      <span class="rc-denom-label">${d>=1000?(d/1000)+'千円':d+'円'}</span>
+      <input class="rc-denom-input" type="number" inputmode="numeric" min="0" placeholder="0"
+        oninput="_rcActualCash[${d}]=parseInt(this.value)||0;updateRcDiff(${theoryAmt})">
+    </div>`
+  ).join('');
+  document.getElementById('rc-cash-actual').textContent = '¥0';
+  document.getElementById('rc-diff-row').style.display = 'none';
+
+  // 最初はサマリータブを表示
+  switchRcTab('summary');
+  document.getElementById('rc-bg').classList.add('open');
 }
 
-function closeSalesEndModal() {
-  document.getElementById('sales-end-bg').classList.remove('open');
+function updateRcDiff(theoryAmt) {
+  const actual = DENOMS.reduce((s,d)=>s+d*(_rcActualCash[d]||0), 0);
+  document.getElementById('rc-cash-actual').textContent = fmt(actual);
+  if (cashMode !== 'full') return;
+  const diff = actual - theoryAmt;
+  const row  = document.getElementById('rc-diff-row');
+  row.style.display = 'flex';
+  row.className = `rc-diff-row ${diff>0?'surplus':diff<0?'shortage':''}`;
+  document.getElementById('rc-diff-label').textContent = diff>0 ? '過剰（＋）' : diff<0 ? '不足（−）' : '差異なし';
+  document.getElementById('rc-diff-val').textContent   = fmt(Math.abs(diff));
 }
 
-// ── CSV生成 ──────────────────────────────────
-function buildCsvData() {
-  const now = new Date();
-  const todays = transactions.filter(t => {
-    const d = new Date(t.date);
-    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
-  });
-  const todayOrders = orderQueue.filter(o => {
-    const d = new Date(o.date);
-    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
-  });
-
-  const esc = v => `"${String(v).replace(/"/g, '""')}"`;
-  const row = cols => cols.map(esc).join(',');
-  const NL = '\r\n';
-  const date = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-
-  // ── シート1: 取引一覧 ──
-  let csv = `マルシェレジ 売上レポート,日付: ${date}${NL}${NL}`;
-  csv += `【取引一覧】${NL}`;
-  csv += row(['時刻','品数','支払方法','合計金額']) + NL;
-  todays.forEach(t => { csv += row([t.time, t.items + '点', t.method, t.total]) + NL; });
-  csv += NL;
-
-  // ── シート2: 支払方法別集計 ──
-  const byMethod = {};
-  todays.forEach(t => { byMethod[t.method] = (byMethod[t.method] || 0) + t.total; });
-  csv += `【支払方法別集計】${NL}`;
-  csv += row(['支払方法','金額']) + NL;
-  Object.entries(byMethod).sort((a,b) => b[1]-a[1]).forEach(([m,v]) => { csv += row([m, v]) + NL; });
-  csv += NL;
-
-  // ── シート3: 商品別集計 ──
-  const prodTally = {};
-  todayOrders.forEach(o => o.items.forEach(it => {
-    if (!prodTally[it.id]) prodTally[it.id] = { name: it.name, qty: 0, amt: 0 };
-    prodTally[it.id].qty += it.qty;
-    prodTally[it.id].amt += it.price * it.qty;
-  }));
-  csv += `【商品別販売数】${NL}`;
-  csv += row(['商品名','販売数','売上金額']) + NL;
-  Object.values(prodTally).sort((a,b) => b.qty-a.qty).forEach(p => { csv += row([p.name, p.qty + '点', p.amt]) + NL; });
-  csv += NL;
-
-  // ── サマリー ──
-  const totalAmt = todays.reduce((a,b) => a + b.total, 0);
-  const txCount = todays.length;
-  csv += `【サマリー】${NL}`;
-  csv += row(['取引件数', txCount + '件']) + NL;
-  csv += row(['客単価', txCount ? Math.round(totalAmt / txCount) : 0]) + NL;
-  csv += row(['総売上', totalAmt]) + NL;
-
-  const filename = `marche_${date}.csv`;
-  // BOM付きUTF-8でExcel対応
-  return { csv: '\uFEFF' + csv, filename };
+function switchRcTab(tab) {
+  document.querySelectorAll('.rc-tab').forEach((b,i)=>b.classList.toggle('active',['summary','cash'][i]===tab));
+  document.getElementById('rc-panel-summary').style.display = tab==='summary' ? 'block' : 'none';
+  document.getElementById('rc-panel-cash').style.display    = tab==='cash'    ? 'block' : 'none';
 }
 
-// ── ローカル保存 ──────────────────────────────
-function exportCsvLocal() {
-  const btn = document.querySelector('.se-export-btn');
-  const { csv, filename } = buildCsvData();
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = filename; a.style.display = 'none';
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
-  showToast(`${filename} をダウンロードしました`);
-  // ボタンを一時的に「完了」表示
-  const localBtn = document.querySelectorAll('.se-export-btn')[0];
-  if (localBtn) {
-    localBtn.classList.add('done');
-    localBtn.querySelector('span:last-child').textContent = '保存完了！';
-    setTimeout(() => {
-      localBtn.classList.remove('done');
-      localBtn.querySelector('span:last-child').textContent = '端末に保存';
-    }, 3000);
-  }
+function closeRegisterClose() {
+  document.getElementById('rc-bg').classList.remove('open');
 }
 
-// ── Google Drive保存 ─────────────────────────
-async function getDriveFileToken() {
-  if (driveToken) return driveToken; // 既存トークンを流用
-  if (driveFileToken) return driveFileToken;
-  if (!clientId) throw new Error('no_client_id');
-  await loadGIS();
-  driveFileToken = await new Promise((ok, ng) => {
-    google.accounts.oauth2.initTokenClient({
-      client_id: clientId,
-      scope: DRIVE_SCOPE_FILE,
-      callback: r => r.error ? ng(r) : ok(r.access_token),
-    }).requestAccessToken({ prompt: 'consent' });
-  });
-  return driveFileToken;
-}
-
-async function exportCsvDrive() {
-  const driveBtn = document.getElementById('se-drive-btn');
-  const driveLabel = document.getElementById('se-drive-label');
-  if (!clientId) { showToast('Drive連携を先に設定してください'); openSetup(); return; }
-
-  driveBtn.classList.add('loading');
-  driveLabel.textContent = 'サインイン中...';
-
-  try {
-    const token = await getDriveFileToken();
-    // driveTokenも更新しておく（同期にも使えるように）
-    if (!driveToken) driveToken = token;
-
-    driveLabel.textContent = 'アップロード中...';
-    const { csv, filename } = buildCsvData();
-
-    // regi/results/ フォルダを準備
-    const { resultsId } = await ensureFolderStructure();
-
-    // CSV アップロード（同名ファイルが既にあれば上書き）
-    const q = encodeURIComponent(`name='${filename}' and '${resultsId}' in parents and trashed=false`);
-    const sr = await driveReq(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id)`);
-    const sd = await sr.json();
-    const csvBlob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const form = new FormData();
-    if (sd.files?.length) {
-      form.append('metadata', new Blob([JSON.stringify({ name: filename })], { type: 'application/json' }));
-      form.append('file', csvBlob);
-      await driveReq(
-        `https://www.googleapis.com/upload/drive/v3/files/${sd.files[0].id}?uploadType=multipart`,
-        { method: 'PATCH', body: form }
-      );
-    } else {
-      form.append('metadata', new Blob([JSON.stringify({ name: filename, parents: [resultsId] })], { type: 'application/json' }));
-      form.append('file', csvBlob);
-      await driveReq(
-        `https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id`,
-        { method: 'POST', body: form }
-      );
-    }
-
-    driveBtn.classList.remove('loading');
-    driveBtn.classList.add('done');
-    driveLabel.textContent = '保存完了！';
-    showToast(`regi/results/ に保存しました ☁️`);
-    setTimeout(() => { driveBtn.classList.remove('done'); driveLabel.textContent = 'Driveに保存'; }, 4000);
-  } catch(e) {
-    console.error('Drive CSV export error:', e);
-    driveFileToken = null;
-    driveBtn.classList.remove('loading');
-    driveLabel.textContent = 'Driveに保存';
-    if (e.message === 'no_client_id') { showToast('Drive連携を先に設定してください'); openSetup(); }
-    else showToast(`Drive保存に失敗: ${e.message}`);
-  }
-}
-
-function confirmSalesEnd() {
+function confirmRegisterClose() {
   showConfirmDialog(
-    '販売終了・データリセット',
+    'レジ締め・データリセット',
     '取引履歴・注文キューをリセットします。この操作は元に戻せません。',
     () => {
-      closeSalesEndModal();
-      // カウンターと履歴をリセット
-      transactions = [];
-      orderQueue = [];
+      closeRegisterClose();
+      transactions = []; orderQueue = [];
       queueCounter = 0;
-      localStorage.setItem('queue_counter', '0');
+      cashInRegister = {}; cashStartSnapshot = {};
+      localStorage.setItem('queue_counter','0');
+      localStorage.removeItem('cash_in_register');
+      localStorage.removeItem('cash_start_snapshot');
       saveAndSync();
       updateQueueBadge();
       updateSalesBanner();
       renderAll();
-      showToast('販売を終了しました。お疲れ様でした！');
+      showToast('レジ締めが完了しました。お疲れ様でした！');
     },
-    'リセットして終了'
+    'リセットして締める'
   );
 }
+
+// 旧関数の互換エイリアス（CSV出力ボタンが参照）
+function openSalesEndModal()  { openRegisterClose(); }
+function closeSalesEndModal() { closeRegisterClose(); }
+function confirmSalesEnd()    { confirmRegisterClose(); }
 
 // ══════════════════════════════════════════════
 // TAX SETTINGS
